@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — STACKLY</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#080808;
+    --bg-1:#0e0e0e;
+    --surface:#141414;
+    --line:#262626;
+    --line-2:rgba(255,255,255,.16);
+    --txt:#f0ebe0;
+    --txt-soft:#9e9a91;
+    --txt-dim:#5c5852;
+    --gold:#c9a04e;
+    --gold-2:#e0bd76;
+    --gold-grad:linear-gradient(135deg,#e0b96a,#c9a04e 55%,#a07830);
+    --err:#e0664f;
+    --ease:cubic-bezier(.22,1,.36,1);
+    --font-display:'Playfair Display', serif;
+    --font-body:'Inter', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--font-body);
+    background:var(--bg-0);
+    color:var(--txt);
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;}
+
+  .grain{
+    position:fixed; inset:0; pointer-events:none; z-index:1; opacity:.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .login-split{display:grid;grid-template-columns:1fr 1fr;min-height:100vh;}
+
+  .login-aside{
+    position:relative; background:var(--bg-1); padding:60px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    overflow:hidden; border-right:1px solid var(--line);
+  }
+  .la-glow{
+    position:absolute; top:-10%; right:-10%; width:500px; height:500px;
+    background:radial-gradient(circle, rgba(201,160,78,.18), transparent 70%);
+    filter:blur(30px); pointer-events:none;
+  }
+  .la-logo{
+    position:relative; display:flex; align-items:center; gap:10px;
+  }
+  .la-logo img{ height:34px; width:auto; }
+  .la-logo-fallback{
+    font-family:var(--font-display); font-weight:600;
+    font-size:1.5rem; letter-spacing:.14em; color:var(--txt); display:none;
+  }
+  .la-logo-fallback span{color:var(--gold);}
+  .la-content{position:relative; max-width:420px;}
+  .la-eyebrow{
+    text-transform:uppercase; letter-spacing:.22em; font-size:.72rem;
+    color:var(--gold); margin-bottom:18px; display:block;
+  }
+  .la-content h2{
+    font-family:var(--font-display); font-weight:500; font-size:2.6rem;
+    line-height:1.2; margin:0;
+  }
+  .la-content h2 em{color:var(--gold-2); font-style:italic;}
+  .la-content p{color:var(--txt-soft); margin:20px 0 40px; line-height:1.7;}
+  .la-quote{
+    font-family:var(--font-display); font-style:italic; font-size:1.15rem;
+    color:var(--gold-2); padding-left:20px; border-left:2px solid var(--gold);
+    line-height:1.6;
+  }
+  .la-quote cite{
+    display:block; font-style:normal; font-family:var(--font-body);
+    font-size:.74rem; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--txt-dim); margin-top:10px;
+  }
+  .la-watch{
+    position:absolute; bottom:-130px; right:-110px; width:380px; height:380px;
+    border-radius:50%;
+    background:conic-gradient(from 0deg,#2a2a32,#c9a04e,#1c1c22,#c9a04e,#2a2a32);
+    opacity:.18; animation:spinSlow 40s linear infinite;
+  }
+  @keyframes spinSlow{ to{transform:rotate(360deg);} }
+  @media (prefers-reduced-motion: reduce){
+    .la-watch{animation:none;}
+  }
+
+  .login-main{display:grid; place-items:center; padding:40px; background:var(--bg-0); position:relative; z-index:2;}
+  .login-card{width:min(420px, 100%);}
+
+  .mobile-logo{
+    display:none; align-items:center; justify-content:center; gap:10px; margin-bottom:36px;
+  }
+  .mobile-logo img{ height:32px; width:auto; }
+  .mobile-logo-fallback{
+    font-family:var(--font-display); font-weight:600;
+    font-size:1.3rem; letter-spacing:.14em; display:none;
+  }
+  .mobile-logo-fallback span{color:var(--gold);}
+  @media (max-width:900px){ .mobile-logo{display:flex;} }
+
+  .auth-tabs{
+    display:flex; background:var(--surface); border:1px solid var(--line);
+    border-radius:50px; padding:5px; margin-bottom:40px;
+  }
+  .auth-tab{
+    flex:1; background:transparent; border:none; color:var(--txt-soft);
+    padding:12px; border-radius:50px; cursor:pointer; font-size:.78rem;
+    letter-spacing:.1em; text-transform:uppercase; transition:.4s var(--ease);
+  }
+  .auth-tab.active{background:var(--gold-grad); color:#1a1407; font-weight:600;}
+  .auth-tab:focus-visible, button:focus-visible, input:focus-visible, a:focus-visible{
+    outline:2px solid var(--gold); outline-offset:3px;
+  }
+
+  .auth-form{display:none;}
+  .auth-form.active{display:block; animation:fadeUp .45s var(--ease);}
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(14px);} }
+
+  .auth-form h1{font-family:var(--font-display); font-weight:500; font-size:2.1rem; margin:0;}
+  .af-sub{color:var(--txt-soft); margin:8px 0 32px;}
+
+  .field{position:relative; margin-bottom:26px;}
+  .field input{
+    width:100%; background:transparent; border:none; border-bottom:1px solid var(--line-2);
+    padding:12px 0; color:var(--txt); outline:none; font-size:1rem;
+    transition:border-color .35s var(--ease);
+  }
+  .field input::placeholder{color:transparent;}
+  .field input:-webkit-autofill,
+  .field input:-webkit-autofill:hover,
+  .field input:-webkit-autofill:focus{
+    -webkit-text-fill-color:var(--txt);
+    -webkit-box-shadow:0 0 0px 1000px var(--bg-0) inset;
+    box-shadow:0 0 0px 1000px var(--bg-0) inset;
+    transition:background-color 9999s ease-in-out 0s;
+    caret-color:var(--txt);
+  }
+  .field label{
+    position:absolute; left:0; top:12px; color:var(--txt-dim);
+    pointer-events:none; transition:.25s var(--ease); font-size:1rem;
+  }
+  .field input:focus ~ label,
+  .field input:not(:placeholder-shown) ~ label{
+    top:-12px; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--gold);
+  }
+  .field input:focus{border-color:var(--gold);}
+  .field input.invalid{border-color:var(--err);}
+  .field.has-toggle input{padding-right:32px;}
+
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  @media (max-width:420px){ .field-row{grid-template-columns:1fr;} }
+
+  .field-toggle{
+    position:absolute; right:0; top:8px; background:none; border:none;
+    color:var(--txt-dim); cursor:pointer; padding:4px; line-height:0;
+    display:flex; align-items:center; transition:color .3s;
+  }
+  .field-toggle svg{width:19px; height:19px;}
+  .field-toggle .eye-off{display:none;}
+  .field-toggle.is-visible .eye{display:none;}
+  .field-toggle.is-visible .eye-off{display:block;}
+  .field-toggle:hover{color:var(--gold);}
+
+  .role-toggle{
+    display:flex; gap:10px; margin-bottom:30px;
+  }
+  .role-option{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:8px;
+    background:var(--surface); border:1px solid var(--line-2); border-radius:10px;
+    padding:12px; cursor:pointer; transition:.3s var(--ease); color:var(--txt-soft);
+    font-size:.8rem; letter-spacing:.04em; position:relative;
+  }
+  .role-option svg{width:16px; height:16px; opacity:.8;}
+  .role-option.active{border-color:var(--gold); color:var(--gold-2); background:rgba(201,160,78,.08);}
+  .role-option.active svg{opacity:1;}
+  .role-option input{position:absolute; opacity:0; pointer-events:none;}
+
+  .field-error{
+    color:var(--err); font-size:.78rem; margin-top:7px; min-height:16px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .form-error{
+    color:var(--err); font-size:.84rem; margin-bottom:18px; min-height:18px;
+    padding:10px 14px; border:1px solid transparent; border-radius:8px;
+  }
+  .form-error:not(:empty){ background:rgba(224,102,79,.1); border-color:rgba(224,102,79,.3); }
+
+  .af-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:.85rem; margin-bottom:28px; color:var(--txt-soft); flex-wrap:wrap; gap:10px;
+  }
+  .check{display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none;}
+  .check input{accent-color:var(--gold); width:15px; height:15px; cursor:pointer;}
+  .af-row a{color:var(--txt-soft); transition:color .3s;}
+  .af-row a:hover{color:var(--gold);}
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    border:none; border-radius:50px; padding:15px 28px; font-size:.84rem;
+    letter-spacing:.08em; text-transform:uppercase; font-weight:600;
+    cursor:pointer; transition:.35s var(--ease); position:relative;
+  }
+  .btn-gold{background:var(--gold-grad); color:#1a1407;}
+  .btn-gold:hover:not(:disabled){transform:translateY(-2px); box-shadow:0 10px 28px -8px rgba(201,160,78,.55);}
+  .btn-gold:active:not(:disabled){transform:translateY(0);}
+  .btn-gold:disabled{opacity:.7; cursor:default;}
+  .btn.full{width:100%;}
+  .arrow{transition:transform .3s var(--ease);}
+  .btn:hover:not(:disabled) .arrow{transform:translateX(4px);}
+
+  .spinner{
+    width:14px; height:14px; border-radius:50%;
+    border:2px solid rgba(26,20,7,.3); border-top-color:#1a1407;
+    animation:spin .7s linear infinite; display:none;
+  }
+  .btn.loading .spinner{display:inline-block;}
+  .btn.loading .btn-label, .btn.loading .arrow{display:none;}
+  @keyframes spin{ to{transform:rotate(360deg);} }
+
+  .af-divider{
+    text-align:center; margin:30px 0; position:relative; color:var(--txt-dim); font-size:.76rem;
+    letter-spacing:.06em; text-transform:uppercase;
+  }
+  .af-divider::before{
+    content:""; position:absolute; top:50%; left:0; width:100%; height:1px; background:var(--line);
+  }
+  .af-divider span{background:var(--bg-0); padding:0 16px; position:relative;}
+
+  .social-auth{display:flex; gap:14px;}
+  .social-auth button{
+    flex:1; background:var(--surface); border:1px solid var(--line-2); color:var(--txt);
+    padding:13px; border-radius:50px; cursor:pointer; transition:.35s var(--ease);
+    font-size:.82rem; display:flex; align-items:center; justify-content:center; gap:10px;
+  }
+  .social-auth button:hover{border-color:var(--gold); color:var(--gold-2); background:rgba(201,160,78,.06);}
+  .social-auth svg{width:18px; height:18px; flex-shrink:0;}
+
+  .role-hint{color:var(--txt-dim); font-size:.78rem; text-align:center; margin:18px 0 0; line-height:1.6;}
+
+  .back-home{display:block; text-align:center; margin-top:30px; color:var(--txt-soft); font-size:.84rem; transition:color .3s;}
+  .back-home:hover{color:var(--gold);}
+
+  /* Toast / success modal */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.65); display:none;
+    align-items:center; justify-content:center; z-index:999; padding:20px;
+  }
+  .modal-overlay.show{display:flex; animation:fadeIn .3s var(--ease);}
+  @keyframes fadeIn{ from{opacity:0;} }
+  .modal-box{
+    background:var(--bg-1); border:1px solid var(--gold); border-radius:14px;
+    padding:42px 36px; max-width:360px; width:100%; text-align:center;
+    animation:fadeUp .35s var(--ease);
+  }
+  .modal-icon{
+    width:54px; height:54px; margin:0 auto 18px; border-radius:50%;
+    background:var(--gold-grad); display:flex; align-items:center; justify-content:center;
+    font-size:1.5rem; color:#1a1407;
+  }
+  .modal-box h3{font-family:var(--font-display); font-size:1.3rem; margin:0 0 8px;}
+  .modal-box p{color:var(--txt-soft); font-size:.9rem; margin:0 0 26px; line-height:1.6;}
+
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  /* ═══ RESPONSIVE — placed last so it wins the cascade over earlier
+         same-specificity rules like .login-aside{display:flex} ═══ */
+  @media (max-width:900px){
+    .login-split{grid-template-columns:1fr;}
+    .login-aside{display:none;}
+  }
+  @media (max-width:480px){
+    .login-main{padding:24px 20px;}
+    .auth-form h1{font-size:1.7rem;}
+    .auth-tabs{margin-bottom:30px;}
+    .role-toggle{flex-direction:column;}
+    .social-auth{flex-direction:column;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{animation-duration:.01ms !important; transition-duration:.01ms !important;}
+  }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<div class="login-split">
+  <aside class="login-aside">
+    <div class="la-glow"></div>
+    <a href="index.html" class="la-logo">
+      <img src="./stackly-removebg-preview.png" alt="STACKLY"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="la-logo-fallback">STACK<span>LY</span></span>
+    </a>
+    <div class="la-content">
+      <span class="la-eyebrow">Members' Atelier</span>
+      <h2>Welcome to the<br><em>STACKLY</em> Maison</h2>
+      <p>Access your private collection, appointments and exclusive allocations — curated for those who measure time differently.</p>
+      <div class="la-quote">
+        "To own time is to own a fragment of eternity."
+        <cite>— House Philosophy, Est. 1898</cite>
+      </div>
+    </div>
+    <div class="la-watch" aria-hidden="true"></div>
+  </aside>
+
+  <main class="login-main">
+    <div class="login-card">
+      <div class="mobile-logo">
+        <a href="index.html" style="display:flex;align-items:center;gap:10px;">
+          <img src="./stackly-removebg-preview.png" alt="STACKLY" style="height:32px;width:auto;"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <span class="mobile-logo-fallback">STACK<span>LY</span></span>
+        </a>
+      </div>
+
+      <div class="auth-tabs" role="tablist" aria-label="Authentication">
+        <button class="auth-tab active" data-tab="signin" role="tab" aria-selected="true" aria-controls="signin">Sign In</button>
+        <button class="auth-tab" data-tab="signup" role="tab" aria-selected="false" aria-controls="signup">Create Account</button>
+      </div>
+
+      <!-- SIGN IN -->
+      <form class="auth-form active" id="signin" novalidate>
+        <h1>Sign In</h1>
+        <p class="af-sub">Enter the boutique.</p>
+
+        <div class="form-error" id="si-form-error" role="alert"></div>
+
+        <div class="role-toggle" role="radiogroup" aria-label="Login as">
+          <label class="role-option active" id="si-role-user-label">
+            <input type="radio" name="si-role" value="user" id="si-role-user" checked>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+            User Login
+          </label>
+          <label class="role-option" id="si-role-admin-label">
+            <input type="radio" name="si-role" value="admin" id="si-role-admin">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+            Admin Login
+          </label>
+        </div>
+
+        <div class="field">
+          <input type="email" id="si-email" placeholder=" " autocomplete="email" required aria-describedby="si-email-error">
+          <label for="si-email">Email Address</label>
+          <div class="field-error" id="si-email-error"></div>
+        </div>
+
+        <div class="field has-toggle">
+          <input type="password" id="si-password" placeholder=" " autocomplete="current-password" required aria-describedby="si-password-error">
+          <label for="si-password">Password</label>
+          <button type="button" class="field-toggle" data-target="si-password" aria-label="Show password">
+            <svg class="eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.6 21.6 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a21.6 21.6 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+          </button>
+          <div class="field-error" id="si-password-error"></div>
+        </div>
+
+        <div class="af-row">
+          <label class="check"><input type="checkbox" id="si-remember"> Remember me</label>
+          <a href="#" id="forgot-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn btn-gold full">
+          <span class="spinner" aria-hidden="true"></span>
+          <span class="btn-label">Sign In</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </button>
+
+        <div class="af-divider"><span>or continue with</span></div>
+        <div class="social-auth">
+          <button type="button">
+            <svg viewBox="0 0 48 48" aria-hidden="true">
+              <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+              <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+              <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+              <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+            </svg>
+            Google
+          </button>
+          <button type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+              <path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12 0-.23-.02-.3-.03-.01-.06-.04-.22-.04-.39 0-1.15.572-2.27 1.206-2.98.804-.94 2.142-1.64 3.248-1.68.012.13.05.28.05.43zm4.565 15.71c-.03.07-.463 1.58-1.518 3.12-.945 1.34-1.94 2.71-3.43 2.71-1.517 0-1.9-.88-3.63-.88-1.698 0-2.302.91-3.67.91-1.377 0-2.332-1.26-3.428-2.8-1.287-1.82-2.323-4.63-2.323-7.28 0-4.28 2.797-6.55 5.552-6.55 1.448 0 2.652.95 3.566.95.865 0 2.222-1.01 3.873-1.01.63 0 2.89.06 4.382 2.19-.116.07-2.614 1.52-2.614 4.66 0 3.71 3.253 5.02 3.293 5.03z"/>
+            </svg>
+            Apple
+          </button>
+        </div>
+      </form>
+
+      <!-- SIGN UP -->
+      <form class="auth-form" id="signup" novalidate>
+        <h1>Create Account</h1>
+        <p class="af-sub">Begin your collection.</p>
+
+        <div class="form-error" id="su-form-error" role="alert"></div>
+
+        <div class="field-row">
+          <div class="field">
+            <input type="text" id="su-first-name" placeholder=" " autocomplete="given-name" required aria-describedby="su-first-name-error">
+            <label for="su-first-name">First Name</label>
+            <div class="field-error" id="su-first-name-error"></div>
+          </div>
+          <div class="field">
+            <input type="text" id="su-last-name" placeholder=" " autocomplete="family-name" required aria-describedby="su-last-name-error">
+            <label for="su-last-name">Last Name</label>
+            <div class="field-error" id="su-last-name-error"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <input type="email" id="su-email" placeholder=" " autocomplete="email" required aria-describedby="su-email-error">
+          <label for="su-email">Email Address</label>
+          <div class="field-error" id="su-email-error"></div>
+        </div>
+
+        <div class="field has-toggle">
+          <input type="password" id="su-password" placeholder=" " autocomplete="new-password" required minlength="6" aria-describedby="su-password-error">
+          <label for="su-password">Password</label>
+          <button type="button" class="field-toggle" data-target="su-password" aria-label="Show password">
+            <svg class="eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.6 21.6 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a21.6 21.6 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+          </button>
+          <div class="field-error" id="su-password-error"></div>
+        </div>
+
+        <div class="field has-toggle">
+          <input type="password" id="su-confirm-password" placeholder=" " autocomplete="new-password" required minlength="6" aria-describedby="su-confirm-password-error">
+          <label for="su-confirm-password">Confirm Password</label>
+          <button type="button" class="field-toggle" data-target="su-confirm-password" aria-label="Show password">
+            <svg class="eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.6 21.6 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a21.6 21.6 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+          </button>
+          <div class="field-error" id="su-confirm-password-error"></div>
+        </div>
+
+        <button type="submit" class="btn btn-gold full">
+          <span class="spinner" aria-hidden="true"></span>
+          <span class="btn-label">Create Account</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </button>
+
+        <div class="af-divider"><span>or continue with</span></div>
+        <div class="social-auth">
+          <button type="button">
+            <svg viewBox="0 0 48 48" aria-hidden="true">
+              <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+              <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+              <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+              <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+            </svg>
+            Google
+          </button>
+          <button type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+              <path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12 0-.23-.02-.3-.03-.01-.06-.04-.22-.04-.39 0-1.15.572-2.27 1.206-2.98.804-.94 2.142-1.64 3.248-1.68.012.13.05.28.05.43zm4.565 15.71c-.03.07-.463 1.58-1.518 3.12-.945 1.34-1.94 2.71-3.43 2.71-1.517 0-1.9-.88-3.63-.88-1.698 0-2.302.91-3.67.91-1.377 0-2.332-1.26-3.428-2.8-1.287-1.82-2.323-4.63-2.323-7.28 0-4.28 2.797-6.55 5.552-6.55 1.448 0 2.652.95 3.566.95.865 0 2.222-1.01 3.873-1.01.63 0 2.89.06 4.382 2.19-.116.07-2.614 1.52-2.614 4.66 0 3.71 3.253 5.02 3.293 5.03z"/>
+            </svg>
+            Apple
+          </button>
+        </div>
+
+        <p class="role-hint">By joining you agree to our Terms &amp; Privacy.</p>
+      </form>
+
+      <a href="index.html" class="back-home">← Back to site</a>
+    </div>
+  </main>
+</div>
+
+<!-- Success popup -->
+<div class="modal-overlay" id="successModal" role="dialog" aria-modal="true" aria-labelledby="successTitle">
+  <div class="modal-box">
+    <div class="modal-icon" aria-hidden="true">✓</div>
+    <h3 id="successTitle">Account Created</h3>
+    <p id="successMsg">Your account was created successfully.</p>
+    <button class="btn btn-gold full" id="modalOkBtn">Continue to Sign In</button>
+  </div>
+</div>
+
+<div class="sr-only" aria-live="polite" id="liveRegion"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const tabs = document.querySelectorAll(".auth-tab");
+  const forms = document.querySelectorAll(".auth-form");
+  const live = document.getElementById("liveRegion");
+
+  function showTab(name) {
+    tabs.forEach(t => {
+      const active = t.dataset.tab === name;
+      t.classList.toggle("active", active);
+      t.setAttribute("aria-selected", active);
+    });
+    forms.forEach(f => f.classList.toggle("active", f.id === name));
+    const first = document.querySelector(`#${name} input`);
+    if (first) first.focus();
+  }
+  tabs.forEach(t => t.addEventListener("click", () => showTab(t.dataset.tab)));
+
+  // Password show/hide toggles
+  document.querySelectorAll(".field-toggle").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const input = document.getElementById(btn.dataset.target);
+      const isPw = input.type === "password";
+      input.type = isPw ? "text" : "password";
+      btn.classList.toggle("is-visible", isPw);
+      btn.setAttribute("aria-label", isPw ? "Hide password" : "Show password");
+    });
+  });
+
+  // Sign-in role toggle (User Login / Admin Login)
+  const roleInputs = document.querySelectorAll('input[name="si-role"]');
+  function syncRoleLabels() {
+    roleInputs.forEach(r => {
+      document.getElementById(r.id + "-label").classList.toggle("active", r.checked);
+    });
+  }
+  roleInputs.forEach(r => r.addEventListener("change", syncRoleLabels));
+  syncRoleLabels();
+  function getSelectedRole() {
+    return document.querySelector('input[name="si-role"]:checked').value;
+  }
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function setFieldError(inputId, msg) {
+    const input = document.getElementById(inputId);
+    const err = document.getElementById(inputId + "-error");
+    input.classList.toggle("invalid", !!msg);
+    if (err) err.textContent = msg || "";
+  }
+
+  function getUsers() {
+    try { return JSON.parse(localStorage.getItem("stackly_users") || "[]"); }
+    catch { return []; }
+  }
+
+  /* ---------- SIGN IN ---------- */
+  const signin = document.getElementById("signin");
+  const siFormError = document.getElementById("si-form-error");
+
+  signin.addEventListener("submit", e => {
+    e.preventDefault();
+    siFormError.textContent = "";
+    setFieldError("si-email", "");
+    setFieldError("si-password", "");
+
+    const emailInput = document.getElementById("si-email");
+    const passwordInput = document.getElementById("si-password");
+    const email = emailInput.value.trim().toLowerCase();
+    const password = passwordInput.value;
+    const remember = document.getElementById("si-remember").checked;
+
+    // Basic presence validation only — any credentials are accepted.
+    let hasError = false;
+    if (!email) { setFieldError("si-email", "Email is required."); hasError = true; }
+    else if (!EMAIL_RE.test(email)) { setFieldError("si-email", "Enter a valid email address."); hasError = true; }
+    if (!password) { setFieldError("si-password", "Password is required."); hasError = true; }
+
+    if (hasError) return;
+
+    const isAdmin = getSelectedRole() === "admin";
+
+    const btn = signin.querySelector("button[type=submit]");
+    btn.classList.add("loading");
+    btn.disabled = true;
+
+    setTimeout(() => {
+      let name;
+      if (isAdmin) {
+        name = "Admin";
+      } else {
+        const users = getUsers();
+        const match = users.find(u => u.email.toLowerCase() === email);
+        name = match ? match.name : email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      }
+
+      // Shared lightweight session (used by either dashboard if needed)
+      const session = { email, name, role: isAdmin ? "admin" : "user" };
+      localStorage.setItem("stackly_session", JSON.stringify(session));
+
+      // Session contract expected by admin-dashboard.html / user-dashboard.html
+      const dashSession = { name, email, loginTime: new Date().toISOString() };
+      if (isAdmin) {
+        sessionStorage.setItem("stacklyAdminSession", JSON.stringify(dashSession));
+        if (remember) localStorage.setItem("stacklyAdminRemember", JSON.stringify(dashSession));
+      } else {
+        sessionStorage.setItem("stacklyUserSession", JSON.stringify(dashSession));
+        if (remember) localStorage.setItem("stacklyUserRemember", JSON.stringify(dashSession));
+      }
+
+      btn.classList.remove("loading");
+      btn.disabled = false;
+      live.textContent = "Signed in successfully. Redirecting…";
+
+      window.location.href = isAdmin ? "admin-dashboard.html" : "user-dashboard.html";
+    }, 700);
+  });
+
+  document.getElementById("forgot-link").addEventListener("click", e => {
+    e.preventDefault();
+    const email = document.getElementById("si-email").value.trim();
+    siFormError.textContent = email
+      ? `If an account exists for ${email}, a reset link has been sent.`
+      : "Enter your email above first, then click Forgot password?.";
+  });
+
+  // Pre-fill sign-in email from a remembered session, scoped to current role
+  function tryPrefillSignIn() {
+    const isAdmin = getSelectedRole() === "admin";
+    const key = isAdmin ? "stacklyAdminRemember" : "stacklyUserRemember";
+    const remembered = localStorage.getItem(key);
+    if (!remembered) return;
+    try {
+      const data = JSON.parse(remembered);
+      if (data.email) {
+        document.getElementById("si-email").value = data.email;
+        document.getElementById("si-remember").checked = true;
+      }
+    } catch (e) {}
+  }
+  roleInputs.forEach(r => r.addEventListener("change", tryPrefillSignIn));
+  tryPrefillSignIn();
+
+  /* ---------- SIGN UP ---------- */
+  const signup = document.getElementById("signup");
+  const suFormError = document.getElementById("su-form-error");
+  const successModal = document.getElementById("successModal");
+  const modalOkBtn = document.getElementById("modalOkBtn");
+
+  signup.addEventListener("submit", e => {
+    e.preventDefault();
+    suFormError.textContent = "";
+    setFieldError("su-first-name", "");
+    setFieldError("su-last-name", "");
+    setFieldError("su-email", "");
+    setFieldError("su-password", "");
+    setFieldError("su-confirm-password", "");
+
+    const firstName = document.getElementById("su-first-name").value.trim();
+    const lastName = document.getElementById("su-last-name").value.trim();
+    const email = document.getElementById("su-email").value.trim().toLowerCase();
+    const password = document.getElementById("su-password").value;
+    const confirmPassword = document.getElementById("su-confirm-password").value;
+
+    let hasError = false;
+    if (!firstName) { setFieldError("su-first-name", "First name is required."); hasError = true; }
+    if (!lastName) { setFieldError("su-last-name", "Last name is required."); hasError = true; }
+    if (!email) { setFieldError("su-email", "Email is required."); hasError = true; }
+    else if (!EMAIL_RE.test(email)) { setFieldError("su-email", "Enter a valid email address."); hasError = true; }
+    if (!password) { setFieldError("su-password", "Password is required."); hasError = true; }
+    else if (password.length < 6) { setFieldError("su-password", "Use at least 6 characters."); hasError = true; }
+    if (!confirmPassword) { setFieldError("su-confirm-password", "Please confirm your password."); hasError = true; }
+    else if (password && confirmPassword !== password) { setFieldError("su-confirm-password", "Passwords don't match."); hasError = true; }
+
+    if (hasError) return;
+
+    const users = getUsers();
+    if (users.some(u => u.email.toLowerCase() === email)) {
+      suFormError.textContent = "An account with this email already exists. Try signing in instead.";
+      return;
+    }
+
+    const btn = signup.querySelector("button[type=submit]");
+    btn.classList.add("loading");
+    btn.disabled = true;
+
+    setTimeout(() => {
+      const name = `${firstName} ${lastName}`.trim();
+      users.push({ name, firstName, lastName, email, password });
+      localStorage.setItem("stackly_users", JSON.stringify(users));
+
+      btn.classList.remove("loading");
+      btn.disabled = false;
+      signup.reset();
+      document.querySelectorAll("#signup .invalid").forEach(el => el.classList.remove("invalid"));
+
+      successModal.classList.add("show");
+      modalOkBtn.focus();
+    }, 700);
+  });
+
+  function closeModalAndGoToSignIn() {
+    successModal.classList.remove("show");
+    showTab("signin");
+  }
+  modalOkBtn.addEventListener("click", closeModalAndGoToSignIn);
+  successModal.addEventListener("click", e => { if (e.target === successModal) closeModalAndGoToSignIn(); });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && successModal.classList.contains("show")) closeModalAndGoToSignIn();
+  });
+});
+</script>
+</body>
+</html>

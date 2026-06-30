@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brands — STACKLY</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --gold: #c9a04e;
+  --gold-2: #e0b96a;
+  --gold-grad: linear-gradient(135deg, #e0b96a, #c9a04e, #a07830);
+  --bg-0: #080808;
+  --bg-1: #0e0e0e;
+  --surface: #141414;
+  --surface-2: #1a1a1a;
+  --line: rgba(201,160,78,.18);
+  --line-2: rgba(255,255,255,.16);
+  --line-subtle: rgba(255,255,255,.07);
+  --txt: #f0ebe0;
+  --txt-soft: #9e9a91;
+  --txt-dim: #5c5852;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', sans-serif;
+  --nav-h: 72px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --ease: cubic-bezier(.4,0,.2,1);
+  --shadow-lg: 0 32px 80px rgba(0,0,0,.6);
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg-0); color: var(--txt); line-height: 1.7; overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+/* GRAIN */
+.grain { position: fixed; inset: 0; pointer-events: none; z-index: 9999; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); opacity: .5; }
+
+/* SCROLL PROGRESS */
+.scroll-progress { position: fixed; top: 0; left: 0; height: 2px; width: 0%; background: var(--gold-grad); z-index: 10000; transition: width .1s linear; }
+
+/* PRELOADER */
+.preloader { position: fixed; inset: 0; background: var(--bg-0); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity .6s var(--ease), visibility .6s; }
+.preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.pre-logo { font-family: var(--font-display); font-size: 2.2rem; letter-spacing: .25em; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.pre-bar { width: 220px; height: 1px; background: var(--line); position: relative; overflow: hidden; }
+.pre-bar span { position: absolute; inset-block: 0; left: -100%; width: 100%; background: var(--gold-grad); animation: preLoad .9s var(--ease) forwards; }
+@keyframes preLoad { to { left: 0; } }
+.pre-pct { font-size: .75rem; letter-spacing: .2em; color: var(--txt-dim); }
+
+/* NAV */
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--nav-h); background: rgba(8,8,8,.85); backdrop-filter: blur(24px) saturate(1.4); border-bottom: 1px solid var(--line-subtle); }
+.nav .container { display: flex; align-items: center; justify-content: space-between; height: 100%; }
+.nav-logo { display: flex; align-items: center; gap: 10px; }
+.nav-logo-img { height: 34px; width: auto; }
+.nav-logo-text { font-family: var(--font-display); font-size: 1.25rem; letter-spacing: .12em; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a { font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--txt-soft); transition: color .3s; position: relative; }
+.nav-links a::after { content:""; position:absolute; bottom:-4px; left:0; right:0; height:1px; background:var(--gold); transform:scaleX(0); transition:transform .3s var(--ease); }
+.nav-links a:hover, .nav-links a.active { color: var(--txt); }
+.nav-links a:hover::after, .nav-links a.active::after { transform:scaleX(1); }
+.nav-cta { display: flex; align-items: center; gap: 18px; }
+.nav-icon { font-size: 1.1rem; color: var(--txt-soft); transition: color .3s; }
+.nav-icon:hover { color: var(--gold); }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 26px; border-radius: 50px; font-size: .78rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; transition: .3s var(--ease); cursor: pointer; border: none; font-family: var(--font-body); }
+.btn-gold { background: var(--gold-grad); color: #0a0800; }
+.btn-gold:hover { opacity: .85; transform: translateY(-1px); box-shadow: 0 8px 32px rgba(201,160,78,.3); }
+.btn-outline { border: 1px solid var(--gold); color: var(--gold); background: transparent; }
+.btn-outline:hover { background: var(--gold); color: #0a0800; }
+.arrow { transition: transform .3s; }
+.btn:hover .arrow { transform: translateX(4px); }
+.burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+.burger span { display: block; width: 22px; height: 1.5px; background: var(--txt); transition: .3s; }
+
+/* MOBILE NAV */
+.mobile-nav { display: none; position: fixed; inset: var(--nav-h) 0 0 0; background: rgba(8,8,8,.97); backdrop-filter: blur(30px); z-index: 999; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
+.mobile-nav.open { display: flex; }
+.mobile-nav a { font-family: var(--font-display); font-size: 2rem; color: var(--txt); transition: color .3s; }
+.mobile-nav a:hover { color: var(--gold); }
+
+.container { width: min(1240px, 92%); margin: 0 auto; }
+.eyebrow { display: inline-block; font-size: .7rem; letter-spacing: .25em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+.section { padding: 100px 0; }
+.section-head { margin-bottom: 56px; }
+.section-head.center { text-align: center; }
+.section-head h2 { font-family: var(--font-display); font-size: clamp(2rem,4vw,3rem); }
+.section-head p { color: var(--txt-soft); margin-top: 14px; max-width: 580px; }
+.text-gold { color: var(--gold); }
+
+/* REVEAL */
+[data-reveal] { opacity: 0; transform: translateY(32px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+[data-reveal].visible { opacity: 1; transform: none; }
+[data-delay="1"] { transition-delay: .12s; }
+[data-delay="2"] { transition-delay: .24s; }
+[data-delay="3"] { transition-delay: .36s; }
+
+/* PAGE HERO */
+.page-hero { min-height: 78vh; display: flex; align-items: center; padding: calc(var(--nav-h) + 80px) 0 60px; text-align: center; position: relative; overflow: hidden; }
+.hero-bg-img { position: absolute; inset: 0; z-index: 0; background: url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=1600&q=80') center/cover no-repeat; transform: scale(1.08); animation: heroZoom 15s ease-in-out infinite alternate; }
+@keyframes heroZoom { to { transform: scale(1); } }
+.hero-bg { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(8,8,8,.3) 0%, rgba(8,8,8,.7) 55%, #0e0e0e 100%); z-index: 1; }
+.page-hero .container { position: relative; z-index: 2; }
+.page-hero h1 { font-family: var(--font-display); font-size: clamp(3rem,7vw,5.5rem); line-height: 1.1; margin: 16px 0 24px; }
+.page-hero p { color: var(--txt-soft); font-size: 1.1rem; max-width: 540px; margin: 0 auto 28px; }
+.crumb { font-size: .75rem; letter-spacing: .15em; color: var(--txt-dim); text-transform: uppercase; margin-top: 14px; }
+.crumb a { color: var(--txt-dim); transition: color .3s; }
+.crumb a:hover { color: var(--gold); }
+
+/* BRAND LOGOS STRIP */
+.brand-logos { background: var(--bg-1); padding: 60px 0; border-bottom: 1px solid var(--line-subtle); overflow: hidden; }
+.logo-row-wrap { overflow: hidden; }
+.logo-row { display: flex; align-items: center; gap: 64px; white-space: nowrap; animation: logoScroll 26s linear infinite; }
+.logo-row:hover { animation-play-state: paused; }
+.logo-row span.brand-word { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: .2em; color: var(--txt-dim); transition: color .4s; flex-shrink: 0; }
+.logo-row span.brand-word:hover { color: var(--gold); }
+.logo-row span.brand-sep { color: var(--gold); opacity: .4; font-size: .7rem; flex-shrink: 0; }
+@keyframes logoScroll { to { transform: translateX(-50%); } }
+
+/* STATS BANNER */
+.stats-banner { background: var(--bg-1); padding: 56px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 30px; text-align: center; }
+.stat-block .big { font-family: var(--font-display); font-size: clamp(2.2rem,4vw,3.2rem); background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; display: block; }
+.stat-block .desc { font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--txt-dim); margin-top: 8px; }
+
+/* VETTING PROCESS */
+.vetting-sec { background: var(--bg-0); }
+.vetting-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; }
+.vet-step { text-align: center; padding: 8px; position: relative; }
+.vet-step:not(:last-child)::after { content: "→"; position: absolute; right: -13px; top: 38px; color: rgba(201,160,78,.3); font-size: 1.1rem; }
+.vet-num { width: 64px; height: 64px; border-radius: 50%; border: 1px solid var(--gold); color: var(--gold); display: grid; place-items: center; font-family: var(--font-display); font-size: 1.4rem; margin: 0 auto 18px; transition: .4s var(--ease); }
+.vet-step:hover .vet-num { background: var(--gold-grad); color: #1a1407; box-shadow: 0 0 30px rgba(201,160,78,.3); }
+.vet-step h3 { font-size: 1.05rem; margin-bottom: 8px; }
+.vet-step p { color: var(--txt-soft); font-size: .85rem; line-height: 1.6; }
+
+/* TESTIMONIALS */
+.testi-sec { background: var(--bg-1); }
+.testi-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+.testi-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 32px 28px; transition: .4s var(--ease); }
+.testi-card:hover { border-color: var(--gold); transform: translateY(-6px); }
+.testi-stars { color: var(--gold); font-size: .8rem; letter-spacing: 2px; margin-bottom: 16px; }
+.testi-quote { font-family: var(--font-display); font-style: italic; font-size: 1rem; line-height: 1.6; color: var(--txt); margin-bottom: 20px; }
+.testi-author { display: flex; align-items: center; gap: 12px; padding-top: 16px; border-top: 1px solid var(--line); }
+.testi-avatar { width: 38px; height: 38px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+.testi-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.testi-name { font-size: .88rem; font-weight: 600; }
+.testi-role { font-size: .76rem; color: var(--txt-dim); }
+
+/* HOUSES INTRO STRIP */
+.houses-strip { background: var(--bg-0); }
+.houses-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+.house-card { position: relative; height: 280px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); transition: .5s var(--ease); }
+.house-card:hover { border-color: var(--gold); transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+.house-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s var(--ease); }
+.house-card:hover img { transform: scale(1.08); }
+.house-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,8,8,.9) 20%, rgba(8,8,8,.1) 70%); display: flex; flex-direction: column; justify-content: flex-end; padding: 26px; }
+.house-est { font-size: .68rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+.house-card h3 { font-family: var(--font-display); font-size: 1.4rem; }
+
+/* FILTERS */
+.filter-sec { background: var(--bg-0); }
+.filters { display: flex; gap: 14px; margin-bottom: 50px; flex-wrap: wrap; }
+.filter-btn { background: transparent; border: 1px solid var(--line-2); color: var(--txt-soft); padding: 10px 26px; border-radius: 50px; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; transition: .4s var(--ease); }
+.filter-btn.active, .filter-btn:hover { background: var(--gold-grad); color: #1a1407; border-color: transparent; }
+
+/* PRODUCT GRID */
+.product-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 30px; }
+.product { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; transition: .5s var(--ease); position: relative; }
+.product.hide { display: none; }
+.product:hover { transform: translateY(-10px); border-color: var(--gold); box-shadow: var(--shadow-lg); }
+.p-media { height: 280px; position: relative; overflow: hidden; }
+.p-media img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s var(--ease); }
+.product:hover .p-media img { transform: scale(1.08); }
+.p-media::before { content:""; position:absolute; inset:0; background: linear-gradient(to bottom, rgba(8,8,8,.1) 0%, transparent 40%, rgba(8,8,8,.35) 100%); z-index: 1; }
+.p-badge { position:absolute; top:16px; left:16px; background: var(--gold-grad); color:#1a1407; font-size:.64rem; font-weight:700; letter-spacing:.15em; padding:5px 12px; border-radius:50px; text-transform:uppercase; z-index: 2; }
+.p-body { padding: 24px; }
+.p-body h3 { font-size: 1.3rem; }
+.p-body p { color: var(--txt-dim); font-size: .85rem; margin-top: 4px; }
+.p-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+.p-foot span { font-family: var(--font-display); font-size: 1.2rem; color: var(--gold-2); }
+.p-add { background: transparent; border: 1px solid var(--line-2); color: var(--txt); padding: 8px 18px; border-radius: 50px; cursor: pointer; font-size: .76rem; letter-spacing: .1em; transition: .4s var(--ease); }
+.p-add:hover { background: var(--gold-grad); color: #1a1407; border-color: transparent; }
+
+/* SPOTLIGHT BANNER */
+.spotlight-sec { position: relative; overflow: hidden; height: 56vh; min-height: 380px; display: flex; align-items: center; background: url('https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?w=1600&q=80') center/cover no-repeat; }
+.spotlight-sec::before { content:""; position:absolute; inset:0; background: linear-gradient(100deg, rgba(8,8,8,.93) 38%, transparent 100%); }
+.spotlight-content { position: relative; z-index: 1; padding: 0 60px; max-width: 600px; }
+.spotlight-content .eyebrow { color: var(--gold); }
+.spotlight-content h2 { font-family: var(--font-display); font-size: clamp(2rem,4vw,3rem); margin-bottom: 18px; }
+.spotlight-content p { color: var(--txt-soft); margin-bottom: 28px; line-height: 1.8; }
+
+/* CRAFTSMANSHIP STRIP */
+.craft-strip { background: var(--bg-1); }
+.craft-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+.craft-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; transition: .5s var(--ease); }
+.craft-card:hover { border-color: var(--gold); transform: translateY(-8px); }
+.craft-img { height: 200px; overflow: hidden; }
+.craft-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--ease); }
+.craft-card:hover .craft-img img { transform: scale(1.06); }
+.craft-body { padding: 28px 26px; }
+.craft-body h3 { font-size: 1.15rem; margin-bottom: 8px; }
+.craft-body p { color: var(--txt-soft); font-size: .9rem; line-height: 1.65; }
+
+/* CTA */
+.cta-sec { text-align: center; position: relative; overflow: hidden; background: url('https://images.unsplash.com/photo-1532667449560-72a95c8d381b?w=1600&q=80') center/cover no-repeat; }
+.cta-sec::before { content:""; position:absolute; inset:0; background: rgba(8,8,8,.88); }
+.cta-inner { position: relative; z-index: 1; }
+.cta-inner h2 { font-family: var(--font-display); font-size: clamp(2rem,5vw,3.6rem); }
+.cta-inner p { color: var(--txt-soft); margin: 18px auto 36px; max-width: 480px; }
+
+/* FOOTER */
+.footer { background: var(--bg-1); border-top: 1px solid var(--line-subtle); padding: 80px 0 32px; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 2fr; gap: 60px; margin-bottom: 60px; }
+.footer-logo-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.footer-logo-img { height: 30px; width: auto; }
+.footer-logo-text { font-family: var(--font-display); font-size: 1.1rem; letter-spacing: .12em; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.footer-col > p { color: var(--txt-soft); font-size: .88rem; line-height: 1.7; margin-bottom: 24px; }
+.footer-social { display: flex; gap: 14px; }
+.social-link { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; transition: .3s; color: var(--txt-soft); }
+.social-link svg { width: 14px; height: 14px; fill: currentColor; }
+.social-link:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+.footer-col h4 { font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--txt-soft); margin-bottom: 20px; }
+.footer-col ul { list-style: none; }
+.footer-col ul li + li { margin-top: 10px; }
+.footer-col ul a { color: var(--txt-soft); font-size: .88rem; transition: color .3s; }
+.footer-col ul a:hover { color: var(--gold); }
+.footer-news { display: flex; border: 1px solid var(--line); border-radius: 50px; overflow: hidden; margin-top: 14px; }
+.footer-news input { background: transparent; border: none; outline: none; padding: 12px 18px; color: var(--txt); font-size: .85rem; flex: 1; font-family: var(--font-body); }
+.footer-news input::placeholder { color: var(--txt-dim); }
+.footer-news button { background: var(--gold-grad); border: none; padding: 10px 20px; color: #0a0800; font-size: .78rem; font-weight: 600; letter-spacing: .08em; cursor: pointer; transition: opacity .3s; white-space: nowrap; }
+.footer-news button:hover { opacity: .85; }
+.footer-bottom { display: flex; justify-content: space-between; padding-top: 32px; border-top: 1px solid var(--line-subtle); font-size: .75rem; color: var(--txt-dim); }
+
+/* GAP FIXES: compound selectors beat the generic .section rule */
+.section.houses-strip   { padding-top: 70px; }
+.section.filter-sec     { padding-top: 60px; }
+.section.vetting-sec    { padding-top: 70px; }
+.section.craft-strip    { padding-top: 0; }
+.section.testi-sec      { padding-top: 70px; }
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+  .container { padding: 0; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .houses-grid { grid-template-columns: 1fr 1fr; }
+  .craft-grid { grid-template-columns: 1fr 1fr; }
+  .product-grid { grid-template-columns: 1fr 1fr; }
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 32px 20px; }
+  .vetting-grid { grid-template-columns: 1fr 1fr; }
+  .vet-step:not(:last-child)::after { display: none; }
+  .testi-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .burger { display: flex; }
+  .houses-grid { grid-template-columns: 1fr; }
+  .craft-grid { grid-template-columns: 1fr; }
+  .spotlight-content { padding: 0 32px; }
+}
+@media (max-width: 768px) {
+  .section { padding: 72px 0; }
+  .product-grid { grid-template-columns: 1fr; }
+  .filters { gap: 10px; }
+  .filter-btn { padding: 9px 18px; font-size: .72rem; }
+  .vetting-grid { grid-template-columns: 1fr; }
+  .testi-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  :root { --nav-h: 62px; }
+  .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+  .spotlight-sec { height: auto; min-height: 0; padding: 70px 0; }
+  .spotlight-sec::before { background: rgba(8,8,8,.88); }
+  .spotlight-content { padding: 0 24px; max-width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+
+<body>
+<div class="grain"></div>
+<div class="scroll-progress" id="scrollBar"></div>
+
+<div class="preloader" id="preloader">
+  <div class="pre-logo">STACKLY</div>
+  <div class="pre-bar"><span></span></div>
+  <div class="pre-pct" id="prePct">0%</div>
+</div>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="services.html">Services</a>
+  <a href="brands.html" class="text-gold">Brands</a>
+  <a href="blog.html">Blog</a>
+  <a href="contact.html">Contact</a>
+  <a href="login.html">Login</a>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="container">
+    <a href="index.html" class="nav-logo">
+      <img src="./stackly-removebg-preview.png" alt="STACKLY" class="nav-logo-img"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="nav-logo-text" style="display:none">STACKLY</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="brands.html" class="active">Brands</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+    <div class="nav-cta">
+      <!-- <a href="login.html" class="nav-icon" title="Account">&#128100;</a>
+      <a href="user-dashboard.html" class="btn btn-gold">Boutique <span class="arrow">→</span></a> -->
+      <div class="burger" id="burger"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="page-hero">
+  <div class="hero-bg-img"></div>
+  <div class="hero-bg"></div>
+  <div class="container">
+    <span class="eyebrow" data-reveal>The Maisons</span>
+    <h1 data-reveal data-delay="1">Curated <span class="text-gold">Excellence</span></h1>
+    <p data-reveal data-delay="2">Only the most revered houses earn a place in the STACKLY boutique — each chosen for a singular obsession with their craft.</p>
+    <a href="#filter-sec" class="btn btn-outline" data-reveal data-delay="3">Browse the Collection <span class="arrow">→</span></a>
+    <div class="crumb" data-reveal data-delay="3"><a href="index.html">Home</a> / Brands</div>
+  </div>
+</section>
+
+<!-- BRAND LOGOS STRIP -->
+<section class="brand-logos">
+  <div class="container">
+    <div class="logo-row-wrap">
+      <div class="logo-row">
+        <span class="brand-word">AURELIA</span><span class="brand-sep">✦</span>
+        <span class="brand-word">NOCTURNE</span><span class="brand-sep">✦</span>
+        <span class="brand-word">CELESTE</span><span class="brand-sep">✦</span>
+        <span class="brand-word">MERIDIAN</span><span class="brand-sep">✦</span>
+        <span class="brand-word">VANTAGE</span><span class="brand-sep">✦</span>
+        <span class="brand-word">OBSIDIAN</span><span class="brand-sep">✦</span>
+        <span class="brand-word">AURELIA</span><span class="brand-sep">✦</span>
+        <span class="brand-word">NOCTURNE</span><span class="brand-sep">✦</span>
+        <span class="brand-word">CELESTE</span><span class="brand-sep">✦</span>
+        <span class="brand-word">MERIDIAN</span><span class="brand-sep">✦</span>
+        <span class="brand-word">VANTAGE</span><span class="brand-sep">✦</span>
+        <span class="brand-word">OBSIDIAN</span><span class="brand-sep">✦</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOUSES INTRO -->
+<section class="section houses-strip">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">The Houses</span>
+      <h2>Six Maisons. One Standard.</h2>
+      <p>Each house we represent has spent generations perfecting a single discipline — from tourbillon engineering to dive-rated resilience.</p>
+    </div>
+    <div class="houses-grid">
+      <div class="house-card" data-reveal>
+        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80" alt="Aurelia">
+        <div class="house-overlay">
+          <span class="house-est">Est. 1904</span>
+          <h3>Aurelia</h3>
+        </div>
+      </div>
+      <div class="house-card" data-reveal data-delay="1">
+        <img src="https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?w=600&q=80" alt="Nocturne">
+        <div class="house-overlay">
+          <span class="house-est">Est. 1957</span>
+          <h3>Nocturne</h3>
+        </div>
+      </div>
+      <div class="house-card" data-reveal data-delay="2">
+        <img src="https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?w=600&q=80" alt="Celeste">
+        <div class="house-overlay">
+          <span class="house-est">Est. 1932</span>
+          <h3>Celeste</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BANNER -->
+<div class="stats-banner">
+  <div class="container stats-grid">
+    <div class="stat-block" data-reveal>
+      <span class="big" data-count="6">0</span>
+      <span class="desc">Curated Maisons</span>
+    </div>
+    <div class="stat-block" data-reveal data-delay="1">
+      <span class="big" data-count="340">0</span>
+      <span class="desc">References Available</span>
+    </div>
+    <div class="stat-block" data-reveal data-delay="2">
+      <span class="big" data-count="92">0</span>
+      <span class="desc">Avg. Years Established</span>
+    </div>
+    <div class="stat-block" data-reveal data-delay="3">
+      <span class="big" data-count="100">0</span>
+      <span class="desc">% In-House Movements</span>
+    </div>
+  </div>
+</div>
+
+<!-- FILTERS / PRODUCT GRID -->
+<section class="section filter-sec" id="filter-sec">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">Collection</span>
+      <h2>Featured Timepieces</h2>
+      <p>Filter by material or rarity to find the piece that answers your brief.</p>
+    </div>
+    <div class="filters" data-reveal>
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="gold">Gold</button>
+      <button class="filter-btn" data-filter="steel">Steel</button>
+      <button class="filter-btn" data-filter="limited">Limited</button>
+    </div>
+    <div class="product-grid">
+      <article class="product" data-cat="gold limited" data-reveal>
+        <div class="p-media">
+          <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=700&q=80" alt="Aurelia Tourbillon">
+          <span class="p-badge">Limited</span>
+        </div>
+        <div class="p-body">
+          <h3>Aurelia Tourbillon</h3>
+          <p>18k Rose Gold</p>
+          <div class="p-foot"><span>$48,500</span><button class="p-add">Add ＋</button></div>
+        </div>
+      </article>
+      <article class="product" data-cat="steel" data-reveal data-delay="1">
+        <div class="p-media">
+          <img src="https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?w=700&q=80" alt="Nocturne Chrono">
+        </div>
+        <div class="p-body">
+          <h3>Nocturne Chrono</h3>
+          <p>Titanium</p>
+          <div class="p-foot"><span>$22,900</span><button class="p-add">Add ＋</button></div>
+        </div>
+      </article>
+      <article class="product" data-cat="gold" data-reveal data-delay="2">
+        <div class="p-media">
+          <img src="https://images.unsplash.com/photo-1622434641406-a158123450f9?w=700&q=80" alt="Meridian GMT">
+        </div>
+        <div class="p-body">
+          <h3>Meridian GMT</h3>
+          <p>Yellow Gold</p>
+          <div class="p-foot"><span>$34,200</span><button class="p-add">Add ＋</button></div>
+        </div>
+      </article>
+      <article class="product" data-cat="limited steel" data-reveal>
+        <div class="p-media">
+          <img src="https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?w=700&q=80" alt="Celeste Moonphase">
+          <span class="p-badge">Limited</span>
+        </div>
+        <div class="p-body">
+          <h3>Celeste Moonphase</h3>
+          <p>Platinum</p>
+          <div class="p-foot"><span>$96,000</span><button class="p-add">Add ＋</button></div>
+        </div>
+      </article>
+      <article class="product" data-cat="steel" data-reveal data-delay="1">
+        <div class="p-media">
+          <img src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=700&q=80" alt="Vantage Diver">
+        </div>
+        <div class="p-body">
+          <h3>Vantage Diver</h3>
+          <p>Stainless Steel</p>
+          <div class="p-foot"><span>$14,800</span><button class="p-add">Add ＋</button></div>
+        </div>
+      </article>
+      <article class="product" data-cat="gold" data-reveal data-delay="2">
+        <div class="p-media">
+          <img src="https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=700&q=80" alt="Obsidian Perpetual">
+        </div>
+        <div class="p-body">
+          <h3>Obsidian Perpetual</h3>
+          <p>Rose Gold</p>
+          <div class="p-foot"><span>$72,000</span><button class="p-add">Add ＋</button></div>
+        </div>
+      </article>
+      <article class="product" data-cat="limited gold" data-reveal>
+        <div class="p-media">
+          <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=700&q=80" alt="Meridian Perpetual Sky">
+          <span class="p-badge">Limited</span>
+        </div>
+        <div class="p-body">
+          <h3>Meridian Perpetual Sky</h3>
+          <p>18k White Gold</p>
+          <div class="p-foot"><span>$58,400</span><button class="p-add">Add ＋</button></div>
+        </div>
+      </article>
+      <article class="product" data-cat="steel" data-reveal data-delay="1">
+        <div class="p-media">
+          <img src="https://images.unsplash.com/photo-1772300937289-19aee2d39c66?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHJpY2glMjB3YXRjaHxlbnwwfHwwfHx8MA%3D%3D" alt="Vantage Field Chrono">
+        </div>
+        <div class="p-body">
+          <h3>Vantage Field Chrono</h3>
+          <p>Brushed Steel</p>
+          <div class="p-foot"><span>$11,200</span><button class="p-add">Add ＋</button></div>
+        </div>
+      </article>
+      <article class="product" data-cat="steel" data-reveal data-delay="1">
+        <div class="p-media">
+          <img src="https://images.unsplash.com/photo-1610897534349-7759782118b9?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8Zm9zc2lsJTIwd2F0Y2h8ZW58MHx8MHx8fDA%3D" alt="Vantage Field Chrono">
+        </div>
+        <div class="p-body">
+          <h3>Vantage Fossil</h3>
+          <p>Brushed Steel</p>
+          <div class="p-foot"><span>$24,200</span><button class="p-add">Add ＋</button></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- SPOTLIGHT BANNER -->
+<section class="spotlight-sec">
+  <div class="spotlight-content" data-reveal>
+    <span class="eyebrow">Maison Spotlight</span>
+    <h2>Celeste: Mapping the Night Sky to the Wrist</h2>
+    <p>Founded in 1932 by an astronomer turned watchmaker, Celeste built its first sky-chart dial by hand-painting star positions under a magnifying loupe. Today the house remains the only maison certified to produce true astronomical complications.</p>
+    <!-- <a href="#filter-sec" class="btn btn-gold">View Celeste Pieces <span class="arrow">→</span></a> -->
+  </div>
+</section>
+
+<!-- CRAFTSMANSHIP STRIP -->
+<section class="section craft-strip">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">Why These Houses</span>
+      <h2>The Standard We Demand</h2>
+    </div>
+    <div class="craft-grid">
+      <div class="craft-card" data-reveal>
+        <div class="craft-img"><img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&q=80" alt="In-house movements"></div>
+        <div class="craft-body">
+          <h3>In-House Movements</h3>
+          <p>Every maison we represent designs and finishes its own calibres — no third-party movements, no shortcuts.</p>
+        </div>
+      </div>
+      <div class="craft-card" data-reveal data-delay="1">
+        <div class="craft-img"><img src="https://media.istockphoto.com/id/2176645598/photo/coworkers-talking-at-office.webp?a=1&b=1&s=612x612&w=0&k=20&c=xhaNHywbIQlcKYDPqxEH20msuQoOOIUAI9G7bplfkBg=" alt="Independent ateliers"></div>
+        <div class="craft-body">
+          <h3>Independent Ateliers</h3>
+          <p>Family-owned and operated, free from conglomerate production quotas that compromise quality at scale.</p>
+        </div>
+      </div>
+      <div class="craft-card" data-reveal data-delay="2">
+        <div class="craft-img"><img src="https://images.unsplash.com/photo-1508057198894-247b23fe5ade?w=600&q=80" alt="Verified provenance"></div>
+        <div class="craft-body">
+          <h3>Verified Provenance</h3>
+          <p>Every piece arrives with full documentation and certification — no exceptions, regardless of price point.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VETTING PROCESS -->
+<section class="section vetting-sec">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">How We Choose</span>
+      <h2>Earning a Place in the Boutique</h2>
+      <p>Fewer than one in twenty maisons that approach us ever make it onto the shelf.</p>
+    </div>
+    <div class="vetting-grid">
+      <div class="vet-step" data-reveal>
+        <div class="vet-num">1</div>
+        <h3>Heritage Review</h3>
+        <p>We trace each house's founding story, archives and continuity of ownership before any other criteria are considered.</p>
+      </div>
+      <div class="vet-step" data-reveal data-delay="1">
+        <div class="vet-num">2</div>
+        <h3>Movement Audit</h3>
+        <p>Our horologists disassemble sample calibres to verify in-house design, finishing standards and long-term serviceability.</p>
+      </div>
+      <div class="vet-step" data-reveal data-delay="2">
+        <div class="vet-num">3</div>
+        <h3>Atelier Visit</h3>
+        <p>A senior advisor visits the workshop in person — production quotas, working conditions and quality control all factor in.</p>
+      </div>
+      <div class="vet-step" data-reveal data-delay="3">
+        <div class="vet-num">4</div>
+        <h3>Ongoing Standard</h3>
+        <p>Acceptance is never permanent. Every maison is re-reviewed annually against the same bar that earned them a place.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section testi-sec">
+  <div class="container">
+    <div class="section-head center" data-reveal>
+      <span class="eyebrow">Collector Voices</span>
+      <h2>Why Collectors Trust This Shelf</h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card" data-reveal>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-quote">"Every maison here actually deserves to be here. I've stopped second-guessing provenance the moment I see the STACKLY name attached."</p>
+        <div class="testi-author">
+          <div class="testi-avatar"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Julien Massot"></div>
+          <div><div class="testi-name">Julien Massot</div><div class="testi-role">Private Collector, Paris</div></div>
+        </div>
+      </div>
+      <div class="testi-card" data-reveal data-delay="1">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-quote">"The Celeste piece I bought through STACKLY came with more documentation than my last property purchase. That's the standard I expect now."</p>
+        <div class="testi-author">
+          <div class="testi-avatar"><img src="https://media.istockphoto.com/id/2268093665/photo/everyday-lifestyle-moment-woman-texting-on-phone-while-holding-coffee.webp?a=1&b=1&s=612x612&w=0&k=20&c=9a5eHwgzefItNXFHUv11HaBreJ-JcWlLNuf48ny2hnk=" alt="Renata Voss"></div>
+          <div><div class="testi-name">Renata Voss</div><div class="testi-role">Estate Collector, Vienna</div></div>
+        </div>
+      </div>
+      <div class="testi-card" data-reveal data-delay="2">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-quote">"I've watched maisons get dropped from this shelf when they cut corners. That accountability is rare in this industry — and it's why I keep coming back."</p>
+        <div class="testi-author">
+          <div class="testi-avatar"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80" alt="Theo Adeyemi"></div>
+          <div><div class="testi-name">Theo Adeyemi</div><div class="testi-role">Horological Society, Lagos</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section cta-sec">
+  <div class="container cta-inner" data-reveal>
+    <span class="eyebrow">Sourcing Service</span>
+    <h2>Can't Find Your Grail?</h2>
+    <p>Our advisors source rarities worldwide — secondary market, private collections, and pieces yet to be announced.</p>
+    <a href="contact.html" class="btn btn-gold">Request a Sourcing <span class="arrow">→</span></a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="footer-logo-wrap">
+          <img src="./stackly-removebg-preview.png" alt="STACKLY" class="footer-logo-img"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <span class="footer-logo-text" style="display:none">STACKLY</span>
+        </div>
+        <p>The world's most discerning maison of fine watchmaking. Crafted in Geneva since 1898.</p>
+        <div class="footer-social">
+          <a href="#" class="social-link" aria-label="X"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.261 5.634 5.903-5.634Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" class="social-link" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg></a>
+          <a href="#" class="social-link" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+          <a href="#" class="social-link" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="about.html">About</a></li>
+          <li><a href="brands.html">Brands</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="blog.html">Journal</a></li>
+          <li><a href="contact.html">Exhibitions</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Account</h4>
+        <ul>
+          <li><a href="login.html">Sign In</a></li>
+          <li><a href="user-dashboard.html">My Collection</a></li>
+          <li><a href="admin-dashboard.html">Admin</a></li>
+          <li><a href="contact.html">Support</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>The Journal</h4>
+        <p>Subscribe for private releases and horological insight — sent rarely, always worth reading.</p>
+        <form class="footer-news" onsubmit="return false">
+          <input type="email" placeholder="Your email" autocomplete="email">
+          <button type="button">Join</button>
+        </form>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 STACKLY Maison Horlogère. All rights reserved.</span>
+      <span>Privacy · Terms · Geneva, Switzerland</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* PRELOADER */
+(function() {
+  let pct = 0;
+  const el = document.getElementById('prePct');
+  const t = setInterval(() => { pct = Math.min(pct + Math.random()*18, 95); el.textContent = Math.floor(pct)+'%'; }, 80);
+  window.addEventListener('load', () => { clearInterval(t); el.textContent='100%'; setTimeout(()=>document.getElementById('preloader').classList.add('hidden'),400); });
+})();
+
+/* SCROLL PROGRESS */
+window.addEventListener('scroll', () => {
+  const d = document.documentElement;
+  document.getElementById('scrollBar').style.width = (window.scrollY/(d.scrollHeight-d.clientHeight)*100)+'%';
+}, { passive: true });
+
+/* BURGER */
+const burger = document.getElementById('burger');
+const mobileNav = document.getElementById('mobileNav');
+burger.addEventListener('click', () => {
+  mobileNav.classList.toggle('open');
+  const s = burger.querySelectorAll('span'), o = mobileNav.classList.contains('open');
+  s[0].style.transform = o ? 'rotate(45deg) translate(4px,4px)' : '';
+  s[1].style.opacity = o ? '0' : '1';
+  s[2].style.transform = o ? 'rotate(-45deg) translate(4px,-4px)' : '';
+});
+mobileNav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>mobileNav.classList.remove('open')));
+
+/* REVEAL ON SCROLL */
+const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);} }), { threshold: 0.1, rootMargin:'0px 0px -40px 0px' });
+document.querySelectorAll('[data-reveal]').forEach(el=>obs.observe(el));
+
+/* HERO PARALLAX */
+const heroBg = document.querySelector('.hero-bg-img');
+window.addEventListener('scroll', () => { if(heroBg) heroBg.style.transform = `scale(1.08) translateY(${window.scrollY*.22}px)`; }, { passive:true });
+
+/* PRODUCT TILT */
+document.querySelectorAll('.product, .house-card, .craft-card, .testi-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX-r.left)/r.width-.5, y = (e.clientY-r.top)/r.height-.5;
+    card.style.transform = `translateY(-8px) rotateX(${-y*4}deg) rotateY(${x*4}deg)`;
+  });
+  card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+});
+
+/* STAT COUNTER */
+const countUp = (el, target) => {
+  const start = performance.now();
+  const dur = 1700;
+  const step = ts => {
+    const prog = Math.min((ts-start)/dur,1);
+    const ease = 1-Math.pow(1-prog,3);
+    el.textContent = Math.round(target*ease);
+    if(prog<1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+};
+const statObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return;
+    const span = e.target.querySelector('[data-count]');
+    if(!span || span.dataset.counted) return;
+    span.dataset.counted = '1';
+    countUp(span, parseInt(span.dataset.count,10));
+  });
+},{threshold:0.5});
+document.querySelectorAll('.stat-block').forEach(s=>statObs.observe(s));
+
+/* FILTER LOGIC */
+document.addEventListener("DOMContentLoaded", () => {
+  const btns = document.querySelectorAll(".filter-btn");
+  const products = document.querySelectorAll(".product");
+  btns.forEach(b => b.addEventListener("click", () => {
+    btns.forEach(x => x.classList.remove("active")); b.classList.add("active");
+    const f = b.dataset.filter;
+    products.forEach(p => {
+      const show = f === "all" || p.dataset.cat.includes(f);
+      p.classList.toggle("hide", !show);
+      if (show) { p.style.opacity = '0'; p.style.transform = 'translateY(20px)'; requestAnimationFrame(()=>{ p.style.transition = '.4s ease'; p.style.opacity='1'; p.style.transform='translateY(0)'; }); }
+    });
+  }));
+
+  document.querySelectorAll(".p-add").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const name = btn.closest(".product").querySelector("h3").textContent;
+      toast(`${name} added to your selection`);
+      btn.textContent = "Added ✓"; setTimeout(() => btn.textContent = "Add ＋", 1500);
+    });
+  });
+});
+
+function toast(msg) {
+  const t = document.createElement("div");
+  t.textContent = msg;
+  t.style.cssText = "position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:#1c1c24;border:1px solid #c9a04e;color:#f4f3ef;padding:14px 28px;border-radius:50px;z-index:9999;opacity:0;transition:.4s;font-size:.85rem;box-shadow:0 10px 40px rgba(0,0,0,.5)";
+  document.body.appendChild(t);
+  requestAnimationFrame(() => { t.style.opacity = "1"; t.style.transform = "translateX(-50%) translateY(0)"; });
+  setTimeout(() => { t.style.opacity = "0"; setTimeout(() => t.remove(), 400); }, 2200);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — STACKLY</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --gold: #c9a04e; --gold-2: #e0b96a;
+  --gold-grad: linear-gradient(135deg, #e0b96a, #c9a04e, #a07830);
+  --bg-0: #080808; --bg-1: #0e0e0e; --bg-2: #181818;
+  --surface: #141414; --surface-2: #1a1a1a;
+  --line: rgba(201,160,78,.18); --line-2: rgba(255,255,255,.14);
+  --line-subtle: rgba(255,255,255,.07);
+  --txt: #f0ebe0; --txt-soft: #9e9a91; --txt-dim: #5c5852;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', sans-serif;
+  --radius: 16px; --radius-sm: 10px;
+  --ease: cubic-bezier(.4,0,.2,1);
+  --sidebar-w: 260px;
+  --green: #5fd07e; --red: #e0738a; --amber: #e0b373;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body); background: var(--bg-0); color: var(--txt);
+  line-height: 1.6; overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: var(--font-body); }
+img { max-width: 100%; display: block; }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; border-radius: 50px; font-size: .76rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; transition: .3s var(--ease); cursor: pointer; border: none; }
+.btn-gold { background: var(--gold-grad); color: #0a0800; }
+.btn-gold:hover { opacity: .88; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,160,78,.3); }
+.btn.sm { padding: 9px 18px; font-size: .7rem; }
+.btn-ghost { background: transparent; border: 1px solid var(--line-2); color: var(--txt-soft); }
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ═══ LAYOUT ═══ */
+.dash-body { display: flex; min-height: 100vh; background: var(--bg-0); }
+
+/* ═══ SIDEBAR ═══ */
+.sidebar {
+  width: var(--sidebar-w); background: var(--bg-1); border-right: 1px solid var(--line);
+  padding: 28px 20px; display: flex; flex-direction: column;
+  position: fixed; inset: 0 auto 0 0; z-index: 200;
+  transition: transform .45s var(--ease);
+}
+.sb-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; text-decoration: none; }
+.sb-logo img { height: 32px; width: auto; }
+.sb-logo-fallback { font-family: var(--font-display); font-size: 1.15rem; letter-spacing: .1em; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; display: none; }
+.sb-tag { font-size: .65rem; letter-spacing: .2em; text-transform: uppercase; color: var(--txt-dim); margin-bottom: 36px; padding-left: 2px; }
+
+.sb-nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.sb-link { display: flex; align-items: center; gap: 14px; padding: 13px 16px; border-radius: var(--radius-sm); color: var(--txt-soft); font-size: .88rem; transition: .25s var(--ease); cursor: pointer; }
+.sb-link .ic { font-size: 1.05rem; width: 20px; text-align: center; flex-shrink: 0; }
+.sb-link:hover { background: var(--surface); color: var(--txt); }
+.sb-link.active { background: var(--gold-grad); color: #1a1407; font-weight: 600; }
+
+.sb-divider { height: 1px; background: var(--line-subtle); margin: 18px 4px; }
+
+.sb-admin-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px;
+}
+.sb-admin-avatar {
+  width: 42px; height: 42px; border-radius: 50%; background: var(--gold-grad);
+  color: #1a1407; display: grid; place-items: center; font-weight: 700; font-size: .9rem;
+  flex-shrink: 0;
+}
+.sb-admin-info { min-width: 0; flex: 1; }
+.sb-admin-name { font-size: .85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-admin-email { font-size: .72rem; color: var(--txt-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.sb-foot { display: flex; flex-direction: column; gap: 4px; }
+.sb-foot a { display: flex; align-items: center; gap: 10px; padding: 11px 16px; border-radius: var(--radius-sm); color: var(--txt-dim); font-size: .82rem; transition: .25s; }
+.sb-foot a:hover { color: var(--gold); background: var(--surface); }
+
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 150; backdrop-filter: blur(2px); }
+.sidebar-overlay.show { display: block; }
+
+/* ═══ MAIN ═══ */
+.dash-main { flex: 1; margin-left: var(--sidebar-w); padding: 28px 36px 60px; min-width: 0; }
+
+.dash-top { display: flex; align-items: center; gap: 18px; margin-bottom: 32px; flex-wrap: wrap; }
+.dash-burger { display: none; background: var(--surface); border: 1px solid var(--line); color: var(--txt); width: 42px; height: 42px; border-radius: 10px; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; }
+.dash-top-title h1 { font-family: var(--font-display); font-size: 1.7rem; }
+.dash-date { color: var(--txt-dim); font-size: .82rem; margin-top: 2px; }
+.dash-top-r { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+.dash-search { position: relative; }
+.dash-search input { background: var(--surface); border: 1px solid var(--line); border-radius: 50px; padding: 11px 20px 11px 38px; color: var(--txt); outline: none; width: 220px; font-size: .85rem; transition: border-color .3s, width .3s; }
+.dash-search input:focus { border-color: var(--gold); width: 260px; }
+.dash-search-ic { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--txt-dim); font-size: .85rem; pointer-events: none; }
+.dash-avatar-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--gold-grad); color: #1a1407; display: grid; place-items: center; font-weight: 700; flex-shrink: 0; cursor: pointer; border: none; font-size: .9rem; transition: transform .25s; }
+.dash-avatar-btn:hover { transform: scale(1.06); }
+
+.welcome-strip {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 22px 28px; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+}
+.welcome-strip-text { font-size: .92rem; color: var(--txt-soft); }
+.welcome-strip-text b { color: var(--gold-2); font-weight: 600; }
+.welcome-strip-meta { color: var(--txt-dim); font-size: .78rem; }
+
+/* ═══ VIEWS ═══ */
+.view { display: none; }
+.view.active { display: block; animation: fadeUp .5s var(--ease); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* ═══ KPI CARDS ═══ */
+.kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 18px; margin-bottom: 24px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; transition: .35s var(--ease); }
+.kpi:hover { border-color: var(--gold); transform: translateY(-4px); }
+.kpi-label { color: var(--txt-dim); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; }
+.kpi h2 { font-family: var(--font-display); font-size: 1.8rem; margin: 10px 0 6px; color: var(--gold-2); }
+.kpi-up { color: var(--green); font-size: .78rem; }
+.kpi-down { color: var(--red); font-size: .78rem; }
+
+/* ═══ PANELS ═══ */
+.dash-cols { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; margin-bottom: 24px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+.panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; gap: 12px; flex-wrap: wrap; }
+.panel-head h3 { font-family: var(--font-display); font-size: 1.15rem; }
+.badge { background: var(--bg-2); border: 1px solid var(--line); color: var(--txt-soft); font-size: .7rem; padding: 6px 14px; border-radius: 50px; }
+
+/* ═══ CHART ═══ */
+.chart { display: flex; align-items: flex-end; gap: 10px; height: 200px; padding-top: 10px; overflow-x: auto; }
+.chart .bar { flex: 1; min-width: 18px; background: var(--gold-grad); border-radius: 8px 8px 0 0; min-height: 4px; transition: height 1s var(--ease); position: relative; opacity: .85; }
+.chart .bar:hover { opacity: 1; }
+.chart .bar span { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font-size: .68rem; color: var(--txt-dim); white-space: nowrap; }
+
+/* ═══ RANK LIST ═══ */
+.rank-list li { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-size: .85rem; list-style: none; }
+.rank-list span { width: 130px; color: var(--txt-soft); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank-bar { flex: 1; height: 8px; background: var(--bg-2); border-radius: 50px; overflow: hidden; min-width: 0; }
+.rank-bar i { display: block; height: 100%; background: var(--gold-grad); border-radius: 50px; width: 0; transition: width 1.2s var(--ease); }
+.rank-list b { color: var(--gold-2); width: 38px; text-align: right; flex-shrink: 0; font-size: .82rem; }
+
+/* ═══ TABLE ═══ */
+.table-scroll { overflow-x: auto; }
+.dash-table { width: 100%; border-collapse: collapse; min-width: 560px; }
+.dash-table th { text-align: left; color: var(--txt-dim); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; padding: 12px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.dash-table td { padding: 15px 14px; border-bottom: 1px solid var(--line-subtle); font-size: .87rem; white-space: nowrap; }
+.dash-table tr:hover td { background: var(--bg-2); }
+.st { font-size: .7rem; padding: 5px 12px; border-radius: 50px; font-weight: 600; display: inline-block; }
+.st-paid { background: rgba(95,208,126,.15); color: var(--green); }
+.st-ship { background: rgba(201,160,78,.15); color: var(--gold-2); }
+.st-pend { background: rgba(224,179,115,.15); color: var(--amber); }
+.st-down { background: rgba(224,115,138,.15); color: var(--red); }
+
+/* ═══ CUSTOMER GRID ═══ */
+.cust-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 18px; }
+.cust-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; text-align: center; transition: .35s var(--ease); }
+.cust-card:hover { border-color: var(--gold); transform: translateY(-4px); }
+.cust-av { width: 56px; height: 56px; border-radius: 50%; background: var(--gold-grad); color: #1a1407; display: grid; place-items: center; font-weight: 700; margin: 0 auto 12px; }
+.cust-card h4 { font-size: .95rem; margin-bottom: 4px; }
+.cust-card p { color: var(--txt-dim); font-size: .8rem; }
+
+/* ═══ SETTINGS VIEW ═══ */
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.settings-field { margin-bottom: 18px; }
+.settings-field label { display: block; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--txt-dim); margin-bottom: 8px; }
+.settings-field input { width: 100%; background: var(--bg-1); border: 1px solid var(--line-2); border-radius: var(--radius-sm); padding: 13px 16px; color: var(--txt); outline: none; transition: border-color .3s; font-size: .88rem; }
+.settings-field input:focus { border-color: var(--gold); }
+.settings-field input:disabled { color: var(--txt-dim); cursor: not-allowed; opacity: .7; }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 1200px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .dash-cols { grid-template-columns: 1fr; }
+  .cust-grid { grid-template-columns: 1fr 1fr; }
+  .settings-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 1000px) {
+  .sidebar { transform: translateX(-100%); box-shadow: 40px 0 80px rgba(0,0,0,.5); }
+  .sidebar.open { transform: translateX(0); }
+  .dash-main { margin-left: 0; padding: 22px 20px 50px; }
+  .dash-burger { display: flex; align-items: center; justify-content: center; }
+}
+
+@media (max-width: 768px) {
+  .dash-top { gap: 12px; }
+  .dash-top-title h1 { font-size: 1.4rem; }
+  .dash-search input { width: 160px; }
+  .dash-search input:focus { width: 180px; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .kpi { padding: 18px; }
+  .kpi h2 { font-size: 1.5rem; }
+  .panel { padding: 18px; }
+  .welcome-strip { padding: 18px 20px; }
+  .cust-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .cust-card { padding: 18px; }
+}
+
+@media (max-width: 560px) {
+  .dash-top-r { width: 100%; justify-content: space-between; margin-left: 0; }
+  .dash-search { flex: 1; }
+  .dash-search input { width: 100%; }
+  .dash-search input:focus { width: 100%; }
+  .kpi-grid { grid-template-columns: 1fr; }
+  .cust-grid { grid-template-columns: 1fr; }
+  .panel-head { flex-direction: column; align-items: flex-start; }
+  .rank-list span { width: 100px; font-size: .8rem; }
+  .welcome-strip { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 420px) {
+  .dash-main { padding: 18px 14px 40px; }
+  .dash-top-title h1 { font-size: 1.25rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body class="dash-body">
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <a href="index.html" class="sb-logo">
+    <img src="./stackly-removebg-preview.png" alt="STACKLY"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+    <span class="sb-logo-fallback">STACKLY</span>
+  </a>
+  <div class="sb-tag">Maison Admin</div>
+
+  <nav class="sb-nav">
+    <a class="sb-link active" data-view="overview"><span class="ic">◫</span> Overview</a>
+    <a class="sb-link" data-view="products"><span class="ic">⌚</span> Products</a>
+    <a class="sb-link" data-view="orders"><span class="ic">🧾</span> Orders</a>
+    <a class="sb-link" data-view="customers"><span class="ic">👥</span> Customers</a>
+    <a class="sb-link" data-view="analytics"><span class="ic">📈</span> Analytics</a>
+    <a class="sb-link" data-view="settings"><span class="ic">⚙</span> Settings</a>
+  </nav>
+
+  <div class="sb-divider"></div>
+
+  <div class="sb-admin-card">
+    <div class="sb-admin-avatar" id="sbAvatar">A</div>
+    <div class="sb-admin-info">
+      <div class="sb-admin-name" id="sbName">Administrator</div>
+      <div class="sb-admin-email" id="sbEmail">Not signed in</div>
+    </div>
+  </div>
+
+  <div class="sb-foot">
+    <a href="index.html"><span class="ic">←</span> Exit to STACKLY.com</a>
+    <a href="#" id="logoutBtn"><span class="ic">⏻</span> Sign Out</a>
+  </div>
+</aside>
+
+<main class="dash-main">
+  <header class="dash-top">
+    <button class="dash-burger" id="dashBurger">☰</button>
+    <div class="dash-top-title">
+      <h1 id="viewTitle">Overview</h1>
+      <p class="dash-date" id="dashDate"></p>
+    </div>
+    <div class="dash-top-r">
+      <div class="dash-search">
+        <span class="dash-search-ic">⌕</span>
+        <input placeholder="Search orders, products…">
+      </div>
+      <button class="dash-avatar-btn" id="topAvatar" title="Account">A</button>
+    </div>
+  </header>
+
+  <div class="welcome-strip" id="welcomeStrip">
+    <div>
+      <div class="welcome-strip-text">Welcome back, <b id="welcomeName">Administrator</b></div>
+      <div class="welcome-strip-meta" id="welcomeEmail">Sign in to see your account details here.</div>
+    </div>
+    <a href="login.html" class="btn btn-ghost sm" id="welcomeAction">Sign In</a>
+  </div>
+
+  <!-- OVERVIEW -->
+  <section class="view active" id="overview">
+    <div class="kpi-grid">
+      <div class="kpi"><span class="kpi-label">Revenue</span><h2>$<span data-count="2480000">0</span></h2><span class="kpi-up">▲ 12.4%</span></div>
+      <div class="kpi"><span class="kpi-label">Orders</span><h2><span data-count="1284">0</span></h2><span class="kpi-up">▲ 8.1%</span></div>
+      <div class="kpi"><span class="kpi-label">Customers</span><h2><span data-count="9421">0</span></h2><span class="kpi-up">▲ 5.7%</span></div>
+      <div class="kpi"><span class="kpi-label">Avg. Order</span><h2>$<span data-count="38500">0</span></h2><span class="kpi-down">▼ 1.2%</span></div>
+    </div>
+
+    <div class="dash-cols">
+      <div class="panel">
+        <div class="panel-head"><h3>Revenue Overview</h3><span class="badge">2026</span></div>
+        <div class="chart" id="barChart"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Top Models</h3></div>
+        <ul class="rank-list">
+          <li><span>Aurelia Tourbillon</span><div class="rank-bar"><i style="width:92%"></i></div><b>92%</b></li>
+          <li><span>Celeste Moonphase</span><div class="rank-bar"><i style="width:78%"></i></div><b>78%</b></li>
+          <li><span>Nocturne Chrono</span><div class="rank-bar"><i style="width:64%"></i></div><b>64%</b></li>
+          <li><span>Meridian GMT</span><div class="rank-bar"><i style="width:51%"></i></div><b>51%</b></li>
+          <li><span>Vantage Diver</span><div class="rank-bar"><i style="width:39%"></i></div><b>39%</b></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>Recent Orders</h3><a href="#" class="badge" data-go="orders">View all</a></div>
+      <div class="table-scroll">
+        <table class="dash-table">
+          <thead><tr><th>Order</th><th>Customer</th><th>Model</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>#SK-2841</td><td>J. Whitmore</td><td>Aurelia Tourbillon</td><td>$48,500</td><td><span class="st st-paid">Paid</span></td></tr>
+            <tr><td>#SK-2840</td><td>S. Marchetti</td><td>Celeste Moonphase</td><td>$96,000</td><td><span class="st st-ship">Shipped</span></td></tr>
+            <tr><td>#SK-2839</td><td>D. Cho</td><td>Nocturne Chrono</td><td>$22,900</td><td><span class="st st-pend">Pending</span></td></tr>
+            <tr><td>#SK-2838</td><td>A. Roche</td><td>Meridian GMT</td><td>$34,200</td><td><span class="st st-paid">Paid</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTS -->
+  <section class="view" id="products">
+    <div class="panel">
+      <div class="panel-head"><h3>Inventory</h3><button class="btn btn-gold sm">+ Add Product</button></div>
+      <div class="table-scroll">
+        <table class="dash-table">
+          <thead><tr><th>Model</th><th>Reference</th><th>Stock</th><th>Price</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Aurelia Tourbillon</td><td>AUR-18RG</td><td>4</td><td>$48,500</td><td><span class="st st-paid">Active</span></td></tr>
+            <tr><td>Celeste Moonphase</td><td>CEL-PT01</td><td>2</td><td>$96,000</td><td><span class="st st-pend">Low</span></td></tr>
+            <tr><td>Nocturne Chrono</td><td>NOC-TI09</td><td>11</td><td>$22,900</td><td><span class="st st-paid">Active</span></td></tr>
+            <tr><td>Vantage Diver</td><td>VAN-SS22</td><td>0</td><td>$14,800</td><td><span class="st st-down">Sold Out</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ORDERS -->
+  <section class="view" id="orders">
+    <div class="panel">
+      <div class="panel-head"><h3>All Orders</h3></div>
+      <div class="table-scroll">
+        <table class="dash-table">
+          <thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>#SK-2841</td><td>Mar 12</td><td>J. Whitmore</td><td>$48,500</td><td><span class="st st-paid">Paid</span></td></tr>
+            <tr><td>#SK-2840</td><td>Mar 11</td><td>S. Marchetti</td><td>$96,000</td><td><span class="st st-ship">Shipped</span></td></tr>
+            <tr><td>#SK-2839</td><td>Mar 10</td><td>D. Cho</td><td>$22,900</td><td><span class="st st-pend">Pending</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- CUSTOMERS -->
+  <section class="view" id="customers">
+    <div class="panel">
+      <div class="panel-head"><h3>Customers</h3></div>
+      <div class="cust-grid">
+        <div class="cust-card"><div class="cust-av">JW</div><h4>James Whitmore</h4><p>Patron · 6 watches</p></div>
+        <div class="cust-card"><div class="cust-av">SM</div><h4>Sofia Marchetti</h4><p>Connoisseur · 3 watches</p></div>
+        <div class="cust-card"><div class="cust-av">DC</div><h4>Daniel Cho</h4><p>Connoisseur · 2 watches</p></div>
+        <div class="cust-card"><div class="cust-av">AR</div><h4>Anaïs Roche</h4><p>Patron · 8 watches</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ANALYTICS -->
+  <section class="view" id="analytics">
+    <div class="dash-cols">
+      <div class="panel">
+        <div class="panel-head"><h3>Sales by Region</h3></div>
+        <ul class="rank-list">
+          <li><span>Europe</span><div class="rank-bar"><i style="width:84%"></i></div><b>84%</b></li>
+          <li><span>Asia Pacific</span><div class="rank-bar"><i style="width:67%"></i></div><b>67%</b></li>
+          <li><span>North America</span><div class="rank-bar"><i style="width:58%"></i></div><b>58%</b></li>
+          <li><span>Middle East</span><div class="rank-bar"><i style="width:44%"></i></div><b>44%</b></li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Traffic</h3></div>
+        <div class="chart" id="barChart2"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="view" id="settings">
+    <div class="panel">
+      <div class="panel-head"><h3>Account Settings</h3></div>
+      <div class="settings-grid">
+        <div class="settings-field">
+          <label>Full Name</label>
+          <input type="text" id="settingsName" disabled>
+        </div>
+        <div class="settings-field">
+          <label>Email Address</label>
+          <input type="email" id="settingsEmail" disabled>
+        </div>
+        <div class="settings-field">
+          <label>Role</label>
+          <input type="text" value="Administrator" disabled>
+        </div>
+        <div class="settings-field">
+          <label>Signed In Since</label>
+          <input type="text" id="settingsSince" disabled>
+        </div>
+      </div>
+      <p style="color:var(--txt-dim);font-size:.82rem;margin-top:8px;">Account details are read-only in this demo and were captured when you signed in.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ═══ SESSION HANDLING ═══ */
+function getSession() {
+  let raw = sessionStorage.getItem('stacklyAdminSession');
+  if (!raw) raw = localStorage.getItem('stacklyAdminRemember');
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch (e) { return null; }
+}
+
+function initials(name) {
+  if (!name) return 'A';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
+(function applySession() {
+  const session = getSession();
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  document.getElementById('dashDate').textContent = today;
+
+  if (session && session.name && session.email) {
+    const ini = initials(session.name);
+    document.getElementById('sbAvatar').textContent = ini;
+    document.getElementById('sbName').textContent = session.name;
+    document.getElementById('sbEmail').textContent = session.email;
+    document.getElementById('topAvatar').textContent = ini;
+    document.getElementById('welcomeName').textContent = session.name;
+    document.getElementById('welcomeEmail').textContent = session.email + (session.loginTime ? ' · signed in ' + formatDate(session.loginTime) : '');
+    document.getElementById('welcomeAction').textContent = 'View Settings';
+    document.getElementById('welcomeAction').href = '#';
+    document.getElementById('welcomeAction').dataset.go = 'settings';
+
+    document.getElementById('settingsName').value = session.name;
+    document.getElementById('settingsEmail').value = session.email;
+    document.getElementById('settingsSince').value = formatDate(session.loginTime);
+  } else {
+    document.getElementById('settingsName').value = '—';
+    document.getElementById('settingsEmail').value = '—';
+    document.getElementById('settingsSince').value = '—';
+  }
+})();
+
+document.getElementById('logoutBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  sessionStorage.removeItem('stacklyAdminSession');
+  window.location.href = 'login.html';
+});
+
+/* ═══ VIEW SWITCHING ═══ */
+const links = document.querySelectorAll(".sb-link");
+const views = document.querySelectorAll(".view");
+const title = document.getElementById("viewTitle");
+
+function goToView(id) {
+  const link = document.querySelector(`.sb-link[data-view="${id}"]`);
+  if (!link) return;
+  links.forEach(x => x.classList.remove("active"));
+  link.classList.add("active");
+  views.forEach(v => v.classList.remove("active"));
+  const target = document.getElementById(id);
+  if (target) target.classList.add("active");
+  title.textContent = link.textContent.trim();
+  if (id === "analytics") buildChart("barChart2");
+  closeSidebarOnMobile();
+}
+
+links.forEach(l => l.addEventListener("click", (e) => {
+  e.preventDefault();
+  goToView(l.dataset.view);
+}));
+
+document.querySelectorAll('[data-go]').forEach(el => {
+  el.addEventListener('click', (e) => {
+    e.preventDefault();
+    goToView(el.dataset.go);
+  });
+});
+
+/* ═══ MOBILE SIDEBAR ═══ */
+const burger = document.getElementById("dashBurger");
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("sidebarOverlay");
+
+function closeSidebarOnMobile() {
+  if (window.innerWidth <= 1000) {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+  }
+}
+
+burger?.addEventListener("click", () => {
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("show");
+});
+overlay.addEventListener('click', () => {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('show');
+});
+
+/* ═══ CHARTS ═══ */
+function buildChart(id) {
+  const el = document.getElementById(id);
+  if (!el || el.dataset.built) return;
+  el.dataset.built = "1";
+  const data = [42, 65, 50, 80, 72, 95, 60, 88, 76, 100, 84, 91];
+  const labels = ["J","F","M","A","M","J","J","A","S","O","N","D"];
+  data.forEach((v, idx) => {
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    bar.innerHTML = `<span>${labels[idx]}</span>`;
+    el.appendChild(bar);
+    setTimeout(() => bar.style.height = v + "%", 60 * idx + 100);
+  });
+}
+buildChart("barChart");
+
+/* ═══ STAT COUNTERS ═══ */
+document.querySelectorAll('[data-count]').forEach(el => {
+  const target = parseInt(el.dataset.count, 10);
+  const start = performance.now();
+  const dur = 1400;
+  function step(ts) {
+    const prog = Math.min((ts - start) / dur, 1);
+    const eased = 1 - Math.pow(1 - prog, 3);
+    el.textContent = Math.round(target * eased).toLocaleString('en-US');
+    if (prog < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+});
+</script>
+</body>
+</html>

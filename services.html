@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Services — STACKLY</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+
+<style>
+/* ─── RESET & TOKENS ──────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --gold: #c9a04e;
+  --gold-light: #e8c878;
+  --gold-grad: linear-gradient(135deg, #c9a04e, #e8c878);
+  --bg-0: #080808;
+  --bg-1: #0e0e0e;
+  --surface: #141414;
+  --surface-2: #1a1a1a;
+  --line: rgba(201,160,78,.18);
+  --line-subtle: rgba(255,255,255,.07);
+  --txt: #f0ebe0;
+  --txt-soft: #9e9a91;
+  --txt-dim: #5c5852;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', sans-serif;
+  --nav-h: 72px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --ease: cubic-bezier(.4,0,.2,1);
+  --shadow-lg: 0 32px 80px rgba(0,0,0,.6);
+  --shadow-gold: 0 0 60px rgba(201,160,78,.15);
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg-0); color: var(--txt); line-height: 1.7; overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+/* ─── GRAIN ───────────────────────────────────────── */
+.grain {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: .5;
+}
+
+/* ─── SCROLL PROGRESS ─────────────────────────────── */
+.scroll-progress { position: fixed; top: 0; left: 0; height: 2px; width: 0%; background: var(--gold-grad); z-index: 10000; transition: width .1s linear; }
+
+/* ─── PRELOADER ───────────────────────────────────── */
+.preloader { position: fixed; inset: 0; background: var(--bg-0); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity .6s var(--ease), visibility .6s; }
+.preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.pre-logo { font-family: var(--font-display); font-size: 2.2rem; letter-spacing: .25em; color: var(--gold); }
+.pre-bar { width: 220px; height: 1px; background: var(--line); position: relative; overflow: hidden; }
+.pre-bar span { position: absolute; inset-block: 0; left: -100%; width: 100%; background: var(--gold-grad); animation: preLoad .9s var(--ease) forwards; }
+@keyframes preLoad { to { left: 0; } }
+.pre-pct { font-size: .75rem; letter-spacing: .2em; color: var(--txt-dim); }
+
+/* ─── NAV ─────────────────────────────────────────── */
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--nav-h); background: rgba(8,8,8,.85); backdrop-filter: blur(24px) saturate(1.4); border-bottom: 1px solid var(--line-subtle); }
+.nav .container { display: flex; align-items: center; justify-content: space-between; height: 100%; }
+.nav-logo { display: flex; align-items: center; gap: 10px; }
+.nav-logo-img { height: 34px; width: auto; }
+.nav-logo-text { font-family: var(--font-display); font-size: 1.25rem; letter-spacing: .12em; color: var(--gold); }
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a { font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--txt-soft); transition: color .3s; position: relative; }
+.nav-links a::after { content:""; position:absolute; bottom:-4px; left:0; right:0; height:1px; background:var(--gold); transform:scaleX(0); transition:transform .3s var(--ease); }
+.nav-links a:hover, .nav-links a.active { color: var(--txt); }
+.nav-links a:hover::after, .nav-links a.active::after { transform:scaleX(1); }
+.nav-cta { display: flex; align-items: center; gap: 18px; }
+.nav-icon { font-size: 1.1rem; color: var(--txt-soft); transition: color .3s; }
+.nav-icon:hover { color: var(--gold); }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 26px; border-radius: 50px; font-size: .78rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; transition: .3s var(--ease); cursor: pointer; border: none; font-family: var(--font-body); }
+.btn-gold { background: var(--gold-grad); color: #0a0800; }
+.btn-gold:hover { opacity: .85; transform: translateY(-1px); box-shadow: 0 8px 32px rgba(201,160,78,.3); }
+.btn-outline { border: 1px solid var(--gold); color: var(--gold); background: transparent; }
+.btn-outline:hover { background: var(--gold); color: #0a0800; }
+.btn-ghost { border: 1px solid var(--line); color: var(--txt-soft); background: transparent; }
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+.arrow { transition: transform .3s; }
+.btn:hover .arrow { transform: translateX(4px); }
+.burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+.burger span { display: block; width: 22px; height: 1.5px; background: var(--txt); transition: .3s; }
+
+/* ─── MOBILE NAV ──────────────────────────────────── */
+.mobile-nav { display: none; position: fixed; inset: var(--nav-h) 0 0 0; background: rgba(8,8,8,.97); backdrop-filter: blur(30px); z-index: 999; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
+.mobile-nav.open { display: flex; }
+.mobile-nav a { font-family: var(--font-display); font-size: 2rem; color: var(--txt); transition: color .3s; }
+.mobile-nav a:hover { color: var(--gold); }
+
+/* ─── CONTAINER ───────────────────────────────────── */
+.container { width: min(1240px, 92%); margin: 0 auto; }
+.eyebrow { display: inline-block; font-size: .7rem; letter-spacing: .25em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+.section { padding: 120px 0; }
+.section-head { margin-bottom: 64px; }
+.section-head.center { text-align: center; }
+.section-head h2 { font-family: var(--font-display); font-size: clamp(2rem,4vw,3rem); }
+.text-gold { color: var(--gold); }
+
+/* ─── REVEAL ──────────────────────────────────────── */
+[data-reveal] { opacity: 0; transform: translateY(32px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+[data-reveal].visible { opacity: 1; transform: none; }
+[data-delay="1"] { transition-delay: .15s; }
+[data-delay="2"] { transition-delay: .3s; }
+[data-delay="3"] { transition-delay: .45s; }
+
+/* ─── PAGE HERO ───────────────────────────────────── */
+.page-hero { min-height: 78vh; display: flex; align-items: center; padding: calc(var(--nav-h) + 80px) 0 60px; text-align: center; position: relative; overflow: hidden; }
+.hero-bg-img { position: absolute; inset: 0; z-index: 0; background: url('https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=1600&q=80') center/cover no-repeat; transform: scale(1.08); animation: heroZoom 14s ease-in-out infinite alternate; }
+@keyframes heroZoom { to { transform: scale(1); } }
+.hero-bg { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(8,8,8,.25) 0%, rgba(8,8,8,.65) 50%, #0e0e0e 100%); z-index: 1; }
+.page-hero .container { position: relative; z-index: 2; }
+.page-hero h1 { font-family: var(--font-display); font-size: clamp(3rem,7vw,5.5rem); line-height: 1.1; margin: 16px 0 24px; }
+.page-hero p { color: var(--txt-soft); font-size: 1.1rem; max-width: 520px; margin: 0 auto 32px; }
+.crumb { font-size: .75rem; letter-spacing: .15em; color: var(--txt-dim); text-transform: uppercase; margin-top: 16px; }
+.crumb a { color: var(--txt-dim); transition: color .3s; }
+.crumb a:hover { color: var(--gold); }
+
+/* ─── INTRO STRIP ─────────────────────────────────── */
+.intro-strip { padding: 80px 0 80px; background: var(--bg-1); border-bottom: 1px solid var(--line-subtle); }
+.intro-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.intro-text h2 { font-family: var(--font-display); font-size: clamp(1.8rem,3vw,2.6rem); margin-bottom: 20px; line-height: 1.2; }
+.intro-text p { color: var(--txt-soft); line-height: 1.8; margin-bottom: 16px; }
+.intro-img { border-radius: var(--radius); overflow: hidden; height: 440px; border: 1px solid var(--line); }
+.intro-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .8s var(--ease); }
+.intro-img:hover img { transform: scale(1.04); }
+
+/* ─── GAP FIXES: remove double padding between consecutive sections ── */
+/* process-sec is not .section so it keeps its own padding */
+.section.testimonials-sec { padding-top: 60px; }
+.section.pricing-sec      { padding-top: 60px; }
+.section.faq-sec          { padding-top: 60px; }
+.section.services-list    { padding-top: 80px; }
+.srv-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 26px; }
+.srv-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  overflow: hidden; transition: .5s var(--ease); position: relative;
+}
+.srv-card::before { content:""; position:absolute; top:0; left:0; width:100%; height:3px; background: var(--gold-grad); transform: scaleX(0); transform-origin: left; transition: transform .5s var(--ease); z-index: 1; }
+.srv-card:hover { border-color: var(--gold); transform: translateY(-10px); box-shadow: var(--shadow-lg); }
+.srv-card:hover::before { transform: scaleX(1); }
+.srv-img { height: 200px; overflow: hidden; }
+.srv-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--ease); }
+.srv-card:hover .srv-img img { transform: scale(1.06); }
+.srv-body { padding: 36px 32px 32px; }
+.srv-num { font-family: var(--font-display); font-size: 2.4rem; color: rgba(201,160,78,.35); display: block; margin-bottom: 8px; }
+.srv-card h3 { font-size: 1.4rem; margin-bottom: 10px; }
+.srv-card p { color: var(--txt-soft); margin-bottom: 22px; font-size: .93rem; line-height: 1.7; }
+.srv-link { font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); display: inline-flex; align-items: center; gap: 6px; transition: gap .3s; }
+.srv-link:hover { gap: 10px; }
+
+/* ─── PROCESS ─────────────────────────────────────── */
+.process-sec { background: var(--bg-1); position: relative; overflow: hidden; padding-top: 80px; }
+.process-sec::before { content:""; position:absolute; inset:0; background: url('https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?w=1400&q=60') center/cover no-repeat; opacity: .06; }
+.process-inner { position: relative; z-index: 1; }
+.process-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 26px; }
+.proc-step { text-align: center; padding: 44px 24px; position: relative; }
+.proc-step:not(:last-child)::after {
+  content: "→"; position: absolute; right: -13px; top: 56px;
+  color: rgba(201,160,78,.3); font-size: 1.2rem;
+}
+.ps-num {
+  width: 72px; height: 72px; border-radius: 50%; border: 1px solid var(--gold);
+  color: var(--gold); display: grid; place-items: center; font-family: var(--font-display);
+  font-size: 1.6rem; margin: 0 auto 24px; transition: .4s var(--ease); position: relative;
+}
+.ps-num::after { content:""; position:absolute; inset:-8px; border-radius:50%; border:1px solid rgba(201,160,78,.15); }
+.proc-step:hover .ps-num { background: var(--gold-grad); color: #1a1407; box-shadow: 0 0 40px rgba(201,160,78,.3); }
+.proc-step h3 { font-size: 1.15rem; margin-bottom: 10px; }
+.proc-step p { color: var(--txt-soft); font-size: .9rem; line-height: 1.6; }
+
+/* ─── FULL-WIDTH FEATURE ──────────────────────────── */
+.feature-band {
+  height: 60vh; min-height: 380px; position: relative; display: flex; align-items: center;
+  background: url('https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=1600&q=80') center 40%/cover no-repeat;
+}
+.feature-band::before { content:""; position:absolute; inset:0; background: linear-gradient(90deg, rgba(8,8,8,.92) 40%, transparent 100%); }
+.feature-content { position: relative; z-index: 1; padding: 0 60px; max-width: 580px; }
+.feature-content h2 { font-family: var(--font-display); font-size: clamp(2rem,4vw,3rem); margin-bottom: 18px; }
+.feature-content p { color: var(--txt-soft); margin-bottom: 28px; line-height: 1.8; }
+
+/* ─── TESTIMONIALS ────────────────────────────────── */
+.testimonials-sec { background: var(--bg-0); }
+.test-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 26px; }
+.test-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 40px 32px; transition: .4s var(--ease); position: relative; }
+.test-card::before { content: "❝"; position:absolute; top:20px; right:24px; font-family: var(--font-display); font-size: 3rem; color: rgba(201,160,78,.12); line-height: 1; }
+.test-card:hover { border-color: var(--gold); transform: translateY(-6px); }
+.test-stars { color: var(--gold); font-size: .85rem; letter-spacing: 3px; margin-bottom: 18px; }
+.test-card blockquote { font-family: var(--font-display); font-style: italic; font-size: 1.05rem; color: var(--txt); line-height: 1.6; margin-bottom: 24px; }
+.test-author { display: flex; align-items: center; gap: 14px; }
+.test-avatar { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); overflow: hidden; }
+.test-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.test-name { font-size: .9rem; font-weight: 600; }
+.test-role { font-size: .78rem; color: var(--txt-dim); }
+
+/* ─── PRICING ─────────────────────────────────────── */
+.pricing-sec { background: var(--bg-1); }
+.pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 26px; align-items: stretch; }
+.price-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 48px 36px; text-align: center; transition: .5s var(--ease); position: relative; display: flex; flex-direction: column; }
+.price-card.featured { border-color: var(--gold); box-shadow: var(--shadow-gold), 0 0 0 1px rgba(201,160,78,.25); }
+.pc-tag { background: var(--gold-grad); color: #1a1407; font-size: .66rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; padding: 6px 16px; border-radius: 50px; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+.price-card:hover { border-color: var(--gold); transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+.price-card.featured:hover { transform: translateY(-8px); }
+.price-card h3 { font-family: var(--font-display); font-size: 1.6rem; margin-bottom: 16px; }
+.pc-price { font-family: var(--font-display); font-size: 3rem; color: var(--gold); margin-bottom: 32px; line-height: 1; }
+.pc-price span { font-size: .95rem; color: var(--txt-dim); }
+.price-card ul { list-style: none; margin-bottom: 36px; flex: 1; text-align: left; }
+.price-card li { padding: 12px 0; border-top: 1px solid var(--line-subtle); color: var(--txt-soft); font-size: .9rem; display: flex; align-items: center; gap: 10px; }
+.price-card li::before { content: "✦"; color: var(--gold); font-size: .6rem; flex-shrink: 0; }
+.price-card .btn { width: 100%; justify-content: center; margin-top: auto; }
+
+/* ─── FAQ ─────────────────────────────────────────── */
+.faq-sec { background: var(--bg-0); }
+.faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+.faq-img { border-radius: var(--radius); overflow: hidden; height: 480px; border: 1px solid var(--line); position: sticky; top: calc(var(--nav-h) + 24px); }
+.faq-img img { width: 100%; height: 100%; object-fit: cover; }
+.faq-list { display: flex; flex-direction: column; gap: 2px; }
+.faq-item { border: 1px solid var(--line-subtle); border-radius: var(--radius-sm); overflow: hidden; transition: border-color .3s; }
+.faq-item.open { border-color: var(--line); }
+.faq-q { padding: 22px 24px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; gap: 16px; user-select: none; }
+.faq-q span { font-size: 1rem; font-weight: 500; }
+.faq-icon { color: var(--gold); font-size: 1.2rem; transition: transform .3s var(--ease); flex-shrink: 0; }
+.faq-item.open .faq-icon { transform: rotate(45deg); }
+.faq-a { max-height: 0; overflow: hidden; transition: max-height .4s var(--ease); }
+.faq-a p { padding: 0 24px 20px; color: var(--txt-soft); font-size: .92rem; line-height: 1.75; }
+.faq-item.open .faq-a { max-height: 200px; }
+
+/* ─── CTA ─────────────────────────────────────────── */
+.cta-sec {
+  text-align: center; position: relative; overflow: hidden;
+  background: url('https://images.unsplash.com/photo-1551818255-e6e10975bc17?w=1600&q=80') center/cover no-repeat;
+}
+.cta-sec::before { content:""; position:absolute; inset:0; background: rgba(8,8,8,.88); }
+.cta-inner { position: relative; z-index: 1; }
+.cta-inner h2 { font-family: var(--font-display); font-size: clamp(2rem,5vw,3.6rem); }
+.cta-inner p { color: var(--txt-soft); margin: 18px auto 36px; max-width: 480px; }
+
+/* ─── FOOTER ──────────────────────────────────────── */
+.footer { background: var(--bg-1); border-top: 1px solid var(--line-subtle); padding: 80px 0 32px; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 2fr; gap: 60px; margin-bottom: 60px; }
+.footer-logo-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.footer-logo-img { height: 30px; width: auto; }
+.footer-logo-text { font-family: var(--font-display); font-size: 1.1rem; letter-spacing: .12em; color: var(--gold); }
+.footer-col > p { color: var(--txt-soft); font-size: .88rem; line-height: 1.7; margin-bottom: 24px; }
+.footer-social { display: flex; gap: 14px; }
+.social-link { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; transition: .3s; color: var(--txt-soft); }
+.social-link svg { width: 14px; height: 14px; fill: currentColor; }
+.social-link:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+.footer-col h4 { font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--txt-soft); margin-bottom: 20px; }
+.footer-col ul { list-style: none; }
+.footer-col ul li + li { margin-top: 10px; }
+.footer-col ul a { color: var(--txt-soft); font-size: .88rem; transition: color .3s; }
+.footer-col ul a:hover { color: var(--gold); }
+.footer-news { display: flex; border: 1px solid var(--line); border-radius: 50px; overflow: hidden; margin-top: 14px; }
+.footer-news input { background: transparent; border: none; outline: none; padding: 12px 18px; color: var(--txt); font-size: .85rem; flex: 1; font-family: var(--font-body); }
+.footer-news input::placeholder { color: var(--txt-dim); }
+.footer-news button { background: var(--gold-grad); border: none; padding: 10px 20px; color: #0a0800; font-size: .78rem; font-weight: 600; letter-spacing: .08em; cursor: pointer; transition: opacity .3s; white-space: nowrap; }
+.footer-news button:hover { opacity: .85; }
+.footer-bottom { display: flex; justify-content: space-between; padding-top: 32px; border-top: 1px solid var(--line-subtle); font-size: .75rem; color: var(--txt-dim); }
+
+/* ─── RESPONSIVE ──────────────────────────────────── */
+@media (max-width: 1100px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .srv-grid { grid-template-columns: 1fr 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+  .test-grid { grid-template-columns: 1fr 1fr; }
+  .faq-grid { grid-template-columns: 1fr; }
+  .faq-img { position: static; height: 320px; }
+  .intro-inner { grid-template-columns: 1fr; gap: 40px; }
+}
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .burger { display: flex; }
+  .srv-grid { grid-template-columns: 1fr; }
+  .process-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .proc-step:not(:last-child)::after { display: none; }
+  .test-grid { grid-template-columns: 1fr; }
+  .feature-content { padding: 0 32px; }
+}
+@media (max-width: 640px) {
+  :root { --nav-h: 62px; }
+  .section { padding: 80px 0; }
+  .process-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+  .feature-band { height: auto; min-height: 0; padding: 80px 0; }
+  .feature-band::before { background: rgba(8,8,8,.88); }
+  .feature-content { padding: 0 24px; max-width: 100%; }
+  .pc-tag { white-space: nowrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+
+<body>
+<div class="grain"></div>
+<div class="scroll-progress" id="scrollBar"></div>
+
+<div class="preloader" id="preloader">
+  <div class="pre-logo">STACKLY</div>
+  <div class="pre-bar"><span></span></div>
+  <div class="pre-pct" id="prePct">0%</div>
+</div>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="services.html" class="text-gold">Services</a>
+  <a href="brands.html">Brands</a>
+  <a href="blog.html">Blog</a>
+  <a href="contact.html">Contact</a>
+  <a href="login.html">Login</a>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="container">
+    <a href="index.html" class="nav-logo">
+      <img src="./stackly-removebg-preview.png" alt="STACKLY" class="nav-logo-img"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="nav-logo-text" style="display:none">STACKLY</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html" class="active">Services</a></li>
+      <li><a href="brands.html">Brands</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+    <div class="nav-cta">
+      <!-- <a href="login.html" class="nav-icon" title="Account">&#128100;</a>
+      <a href="user-dashboard.html" class="btn btn-gold">Boutique <span class="arrow">→</span></a> -->
+      <div class="burger" id="burger"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="page-hero">
+  <div class="hero-bg-img"></div>
+  <div class="hero-bg"></div>
+  <div class="container">
+    <span class="eyebrow" data-reveal>Maison Services</span>
+    <h1 data-reveal data-delay="1">Beyond the <span class="text-gold">Timepiece</span></h1>
+    <p data-reveal data-delay="2">A complete circle of care — from private acquisition to generational servicing.</p>
+    <a href="contact.html" class="btn btn-outline" data-reveal data-delay="3">Book a Consultation <span class="arrow">→</span></a>
+    <div class="crumb" data-reveal data-delay="3"><a href="index.html">Home</a> / Services</div>
+  </div>
+</section>
+
+<!-- INTRO STRIP -->
+<section class="intro-strip">
+  <div class="container intro-inner">
+    <div class="intro-text" data-reveal>
+      <span class="eyebrow">Our Commitment</span>
+      <h2>More Than a Purchase — A Lifelong Partnership</h2>
+      <p>Every relationship at STACKLY begins with understanding. Before a single piece is shown, we listen — to your aesthetic, your history with horology, the occasion that calls for something extraordinary.</p>
+      <p>From the moment a timepiece leaves our atelier to the day it passes to the next generation, the STACKLY circle of care ensures it never loses a second of its original soul.</p>
+      <a href="contact.html" class="btn btn-outline" style="margin-top:12px">Speak with an Advisor <span class="arrow">→</span></a>
+    </div>
+    <div class="intro-img" data-reveal data-delay="1">
+      <img src="https://plus.unsplash.com/premium_photo-1728249572934-f56a637a92a4?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mzd8fGNhc2lvJTIwd2F0Y2h8ZW58MHx8MHx8fDA%3D" alt="STACKLY advisor consultation">
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="section services-list">
+  <div class="container">
+    <div class="section-head center" data-reveal>
+      <span class="eyebrow">What We Offer</span>
+      <h2>Services of the Maison</h2>
+    </div>
+    <div class="srv-grid">
+      <article class="srv-card" data-reveal>
+        <div class="srv-img">
+          <img src="https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?w=700&q=80" alt="Private Acquisition">
+        </div>
+        <div class="srv-body">
+          <span class="srv-num">01</span>
+          <h3>Private Acquisition</h3>
+          <p>One-on-one consultation with a senior horology advisor to identify and source your ideal timepiece — from current collections to rare secondary market finds.</p>
+          <a href="contact.html" class="srv-link">Book Consultation →</a>
+        </div>
+      </article>
+      <article class="srv-card" data-reveal data-delay="1">
+        <div class="srv-img">
+          <img src="https://images.unsplash.com/photo-1603850179998-3a57f293b2c5?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8Y2FzaW8lMjB3YXRjaHxlbnwwfHwwfHx8MA%3D%3D" alt="Master Servicing">
+        </div>
+        <div class="srv-body">
+          <span class="srv-num">02</span>
+          <h3>Master Servicing</h3>
+          <p>Full disassembly, ultrasonic cleaning, component inspection, re-lubrication and COSC-grade re-regulation — performed exclusively by certified master watchmakers.</p>
+          <a href="contact.html" class="srv-link">Book Service →</a>
+        </div>
+      </article>
+      <article class="srv-card" data-reveal data-delay="2">
+        <div class="srv-img">
+          <img src="https://images.unsplash.com/photo-1622434641406-a158123450f9?w=700&q=80" alt="Bespoke Commissions">
+        </div>
+        <div class="srv-body">
+          <span class="srv-num">03</span>
+          <h3>Bespoke Commissions</h3>
+          <p>Create a one-of-one timepiece built entirely around your brief — dial design, case material, complications, personal engravings — assembled over 18 to 36 months.</p>
+          <a href="contact.html" class="srv-link">Begin a Commission →</a>
+        </div>
+      </article>
+      <article class="srv-card" data-reveal>
+        <div class="srv-img">
+          <img src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=700&q=80" alt="Authentication">
+        </div>
+        <div class="srv-body">
+          <span class="srv-num">04</span>
+          <h3>Authentication</h3>
+          <p>Certificate-grade verification, provenance documentation and independent valuation — for estates, collectors and insurance purposes.</p>
+          <a href="contact.html" class="srv-link">Request Authentication →</a>
+        </div>
+      </article>
+      <article class="srv-card" data-reveal data-delay="1">
+        <div class="srv-img">
+          <img src="https://images.unsplash.com/photo-1508057198894-247b23fe5ade?w=700&q=80" alt="Restoration">
+        </div>
+        <div class="srv-body">
+          <span class="srv-num">05</span>
+          <h3>Restoration</h3>
+          <p>Sympathetic restoration of vintage and antique pieces — preserving original character while returning the movement to peak performance.</p>
+          <a href="contact.html" class="srv-link">Book Restoration →</a>
+        </div>
+      </article>
+      <article class="srv-card" data-reveal data-delay="2">
+        <div class="srv-img">
+          <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=700&q=80" alt="Concierge">
+        </div>
+        <div class="srv-body">
+          <span class="srv-num">06</span>
+          <h3>Concierge</h3>
+          <p>Worldwide insured delivery, dedicated lifetime account management, private storage and priority access to unreleased collections — for those who expect nothing less.</p>
+          <a href="contact.html" class="srv-link">Learn More →</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE BAND -->
+<section class="feature-band">
+  <div class="feature-content" data-reveal>
+    <span class="eyebrow">The Atelier Promise</span>
+    <h2>Every Stackly. Every Generation. For Life.</h2>
+    <p>We service every calibre we have ever made — regardless of age, regardless of condition. No obsolescence. No orphaned heirlooms. Just watchmaking done right, indefinitely.</p>
+    <a href="contact.html" class="btn btn-gold">Book a Service <span class="arrow">→</span></a>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="section process-sec">
+  <div class="container process-inner">
+    <div class="section-head center" data-reveal>
+      <span class="eyebrow">How We Work</span>
+      <h2>The STACKLY Process</h2>
+    </div>
+    <div class="process-grid">
+      <div class="proc-step" data-reveal>
+        <div class="ps-num">1</div>
+        <h3>Consultation</h3>
+        <p>We begin by understanding your taste, collection, and intent — in person at any boutique, or privately by appointment.</p>
+      </div>
+      <div class="proc-step" data-reveal data-delay="1">
+        <div class="ps-num">2</div>
+        <h3>Curation</h3>
+        <p>A tailored selection or commission brief is presented privately — only pieces that truly answer your brief.</p>
+      </div>
+      <div class="proc-step" data-reveal data-delay="2">
+        <div class="ps-num">3</div>
+        <h3>Craft</h3>
+        <p>Final adjustments, personalisation and regulation performed by hand in our Geneva atelier.</p>
+      </div>
+      <div class="proc-step" data-reveal data-delay="3">
+        <div class="ps-num">4</div>
+        <h3>Delivery</h3>
+        <p>White-glove delivery anywhere in the world — with full documentation, insurance and lifetime support.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section testimonials-sec">
+  <div class="container">
+    <div class="section-head center" data-reveal>
+      <span class="eyebrow">Collector Voices</span>
+      <h2>What Our Patrons Say</h2>
+    </div>
+    <div class="test-grid">
+      <div class="test-card" data-reveal>
+        <div class="test-stars">★★★★★</div>
+        <blockquote>"The bespoke commission process was unlike anything I have experienced. Henri understood my brief in our first conversation — the final piece exceeded every expectation."</blockquote>
+        <div class="test-author">
+          <div class="test-avatar"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80" alt="James W."></div>
+          <div><div class="test-name">James Whitmore</div><div class="test-role">Private Collector, London</div></div>
+        </div>
+      </div>
+      <div class="test-card" data-reveal data-delay="1">
+        <div class="test-stars">★★★★★</div>
+        <blockquote>"My grandfather's 1961 Stackly returned from restoration looking as though it left the atelier yesterday. The movement is flawless. An emotional experience from start to finish."</blockquote>
+        <div class="test-author">
+          <div class="test-avatar"><img src="https://media.istockphoto.com/id/2268093665/photo/everyday-lifestyle-moment-woman-texting-on-phone-while-holding-coffee.webp?a=1&b=1&s=612x612&w=0&k=20&c=9a5eHwgzefItNXFHUv11HaBreJ-JcWlLNuf48ny2hnk=" alt="Sophie M."></div>
+          <div><div class="test-name">Sophie Marchetti</div><div class="test-role">Estate Collector, Milan</div></div>
+        </div>
+      </div>
+      <div class="test-card" data-reveal data-delay="2">
+        <div class="test-stars">★★★★★</div>
+        <blockquote>"The Connoisseur programme has transformed how I collect. Priority allocations, the dedicated advisor — I have never been closer to the pieces I truly wanted."</blockquote>
+        <div class="test-author">
+          <div class="test-avatar"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="David K."></div>
+          <div><div class="test-name">David Krause</div><div class="test-role">Horological Society, Zurich</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section pricing-sec">
+  <div class="container">
+    <div class="section-head center" data-reveal>
+      <span class="eyebrow">Membership</span>
+      <h2>Collector Programs</h2>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card" data-reveal>
+        <h3>Aficionado</h3>
+        <div class="pc-price">$0<span>/yr</span></div>
+        <ul>
+          <li>Full boutique access</li>
+          <li>Annual servicing reminder</li>
+          <li>Standard insured delivery</li>
+          <li>Digital certificate archive</li>
+        </ul>
+        <a href="login.html" class="btn btn-ghost">Join Free</a>
+      </div>
+      <div class="price-card featured" data-reveal data-delay="1">
+        <span class="pc-tag">Most Coveted</span>
+        <h3>Connoisseur</h3>
+        <div class="pc-price">$1,200<span>/yr</span></div>
+        <ul>
+          <li>Priority new-release allocations</li>
+          <li>Complimentary full servicing</li>
+          <li>Private collection previews</li>
+          <li>Dedicated personal advisor</li>
+          <li>Exclusive atelier events</li>
+        </ul>
+        <a href="login.html" class="btn btn-gold">Join Now</a>
+      </div>
+      <div class="price-card" data-reveal data-delay="2">
+        <h3>Patron</h3>
+        <div class="pc-price">$5,000<span>/yr</span></div>
+        <ul>
+          <li>First-look on limited editions</li>
+          <li>Annual atelier tour, Geneva</li>
+          <li>Bespoke commission access</li>
+          <li>Global white-glove concierge</li>
+          <li>24-hour advisor line</li>
+        </ul>
+        <a href="login.html" class="btn btn-ghost">Apply</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section faq-sec">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">Common Questions</span>
+      <h2>Frequently Asked</h2>
+    </div>
+    <div class="faq-grid">
+      <div class="faq-img" data-reveal>
+        <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&q=80" alt="Watchmaker at work">
+      </div>
+      <div class="faq-list" data-reveal data-delay="1">
+        <div class="faq-item open">
+          <div class="faq-q"><span>How long does a full service take?</span><div class="faq-icon">+</div></div>
+          <div class="faq-a"><p>A complete disassembly, clean and re-regulation typically takes 6 to 10 weeks. Complex complications or restoration commissions may require 3 to 6 months. You'll receive a detailed timeline at consultation.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q"><span>Do you service watches from other maisons?</span><div class="faq-icon">+</div></div>
+          <div class="faq-a"><p>Our master watchmakers are trained across Swiss and German movement families. We service selected third-party brands — contact us with the reference and we will confirm eligibility.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q"><span>How does the bespoke commission process work?</span><div class="faq-icon">+</div></div>
+          <div class="faq-a"><p>We begin with a confidential brief — your aesthetic preferences, intended complications and personal narrative. Our atelier then prepares a concept dossier before any work begins. Full commissions take 18 to 36 months.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q"><span>Is my piece insured during service?</span><div class="faq-icon">+</div></div>
+          <div class="faq-a"><p>Yes. Every piece in our care is covered by our own comprehensive fine-art and horological policy from the moment it leaves your hands to its return delivery.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q"><span>Can I upgrade my membership tier?</span><div class="faq-icon">+</div></div>
+          <div class="faq-a"><p>Absolutely. Tier upgrades are prorated and take effect immediately. Your advisor can arrange this at any time — no forms, no waiting periods.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section cta-sec">
+  <div class="container cta-inner" data-reveal>
+    <span class="eyebrow">Begin the Conversation</span>
+    <h2>Let Us Care for Your Collection</h2>
+    <p>Speak with a STACKLY specialist — no obligation, no catalogue, just honest expertise.</p>
+    <a href="contact.html" class="btn btn-gold">Get in Touch <span class="arrow">→</span></a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="footer-logo-wrap">
+          <img src="./stackly-removebg-preview.png" alt="STACKLY" class="footer-logo-img"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <span class="footer-logo-text" style="display:none">STACKLY</span>
+        </div>
+        <p>The world's most discerning maison of fine watchmaking. Crafted in Geneva since 1898.</p>
+        <div class="footer-social">
+          <a href="#" class="social-link" aria-label="X"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.261 5.634 5.903-5.634Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" class="social-link" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg></a>
+          <a href="#" class="social-link" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+          <a href="#" class="social-link" aria-label="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            </a>  
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="brands.html">Brands</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Account</h4>
+        <ul>
+          <li><a href="login.html">Sign In</a></li>
+          <li><a href="user-dashboard.html">My Collection</a></li>
+          <li><a href="#">Support</a></li>
+          <li><a href="contact.html">Book Appointment</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>The Journal</h4>
+        <p>Subscribe for private releases and horological insight — sent rarely, always worth reading.</p>
+        <div class="footer-news">
+          <input type="email" placeholder="Your email" autocomplete="email">
+          <button type="button">Join</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 STACKLY Maison Horlogère. All rights reserved.</span>
+      <span>Privacy · Terms · Geneva, Switzerland</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* PRELOADER */
+(function() {
+  let pct = 0;
+  const el = document.getElementById('prePct');
+  const t = setInterval(() => { pct = Math.min(pct + Math.random()*18, 95); el.textContent = Math.floor(pct)+'%'; }, 80);
+  window.addEventListener('load', () => { clearInterval(t); el.textContent='100%'; setTimeout(()=>document.getElementById('preloader').classList.add('hidden'),400); });
+})();
+
+/* SCROLL PROGRESS */
+window.addEventListener('scroll', () => {
+  const d = document.documentElement;
+  document.getElementById('scrollBar').style.width = (window.scrollY/(d.scrollHeight-d.clientHeight)*100)+'%';
+}, { passive: true });
+
+/* BURGER */
+const burger = document.getElementById('burger');
+const mobileNav = document.getElementById('mobileNav');
+burger.addEventListener('click', () => {
+  mobileNav.classList.toggle('open');
+  const s = burger.querySelectorAll('span'), o = mobileNav.classList.contains('open');
+  s[0].style.transform = o ? 'rotate(45deg) translate(4px,4px)' : '';
+  s[1].style.opacity = o ? '0' : '1';
+  s[2].style.transform = o ? 'rotate(-45deg) translate(4px,-4px)' : '';
+});
+mobileNav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>mobileNav.classList.remove('open')));
+
+/* REVEAL */
+const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);} }), { threshold: 0.12, rootMargin:'0px 0px -40px 0px' });
+document.querySelectorAll('[data-reveal]').forEach(el=>obs.observe(el));
+
+/* PARALLAX HERO */
+const heroBg = document.querySelector('.hero-bg-img');
+window.addEventListener('scroll', () => { if(heroBg) heroBg.style.transform = `scale(1.08) translateY(${window.scrollY*.22}px)`; }, { passive:true });
+
+/* FAQ ACCORDION */
+document.querySelectorAll('.faq-q').forEach(q => {
+  q.addEventListener('click', () => {
+    const item = q.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  });
+});
+
+/* SERVICE CARD MOUSEMOVE GLOW */
+document.querySelectorAll('.srv-card').forEach(c => {
+  c.addEventListener('mousemove', e => {
+    const r = c.getBoundingClientRect();
+    c.style.setProperty('--mx', `${e.clientX-r.left}px`);
+    c.style.setProperty('--my', `${e.clientY-r.top}px`);
+  });
+});
+</script>
+</body>
+</html>

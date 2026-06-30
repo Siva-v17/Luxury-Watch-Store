@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — STACKLY</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --gold: #c9a04e;
+  --gold-2: #e0b96a;
+  --gold-grad: linear-gradient(135deg, #e0b96a, #c9a04e, #a07830);
+  --bg-0: #080808;
+  --bg-1: #0e0e0e;
+  --surface: #141414;
+  --surface-2: #1a1a1a;
+  --line: rgba(201,160,78,.18);
+  --line-2: rgba(255,255,255,.16);
+  --line-subtle: rgba(255,255,255,.07);
+  --txt: #f0ebe0;
+  --txt-soft: #9e9a91;
+  --txt-dim: #5c5852;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', sans-serif;
+  --nav-h: 72px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --ease: cubic-bezier(.4,0,.2,1);
+  --shadow-lg: 0 32px 80px rgba(0,0,0,.6);
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg-0); color: var(--txt); line-height: 1.7; overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+/* GRAIN */
+.grain { position: fixed; inset: 0; pointer-events: none; z-index: 9999; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); opacity: .5; }
+
+/* SCROLL PROGRESS */
+.scroll-progress { position: fixed; top: 0; left: 0; height: 2px; width: 0%; background: var(--gold-grad); z-index: 10000; transition: width .1s linear; }
+
+/* PRELOADER */
+.preloader { position: fixed; inset: 0; background: var(--bg-0); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity .6s var(--ease), visibility .6s; }
+.preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.pre-logo { font-family: var(--font-display); font-size: 2.2rem; letter-spacing: .25em; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.pre-bar { width: 220px; height: 1px; background: var(--line); position: relative; overflow: hidden; }
+.pre-bar span { position: absolute; inset-block: 0; left: -100%; width: 100%; background: var(--gold-grad); animation: preLoad .9s var(--ease) forwards; }
+@keyframes preLoad { to { left: 0; } }
+.pre-pct { font-size: .75rem; letter-spacing: .2em; color: var(--txt-dim); }
+
+/* NAV */
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--nav-h); background: rgba(8,8,8,.85); backdrop-filter: blur(24px) saturate(1.4); border-bottom: 1px solid var(--line-subtle); }
+.nav .container { display: flex; align-items: center; justify-content: space-between; height: 100%; }
+.nav-logo { display: flex; align-items: center; gap: 10px; }
+.nav-logo-img { height: 34px; width: auto; }
+.nav-logo-text { font-family: var(--font-display); font-size: 1.25rem; letter-spacing: .12em; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a { font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--txt-soft); transition: color .3s; position: relative; }
+.nav-links a::after { content:""; position:absolute; bottom:-4px; left:0; right:0; height:1px; background:var(--gold); transform:scaleX(0); transition:transform .3s var(--ease); }
+.nav-links a:hover, .nav-links a.active { color: var(--txt); }
+.nav-links a:hover::after, .nav-links a.active::after { transform:scaleX(1); }
+.nav-cta { display: flex; align-items: center; gap: 18px; }
+.nav-icon { font-size: 1.1rem; color: var(--txt-soft); transition: color .3s; }
+.nav-icon:hover { color: var(--gold); }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 26px; border-radius: 50px; font-size: .78rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; transition: .3s var(--ease); cursor: pointer; border: none; font-family: var(--font-body); }
+.btn-gold { background: var(--gold-grad); color: #0a0800; }
+.btn-gold:hover { opacity: .85; transform: translateY(-1px); box-shadow: 0 8px 32px rgba(201,160,78,.3); }
+.btn-outline { border: 1px solid var(--gold); color: var(--gold); background: transparent; }
+.btn-outline:hover { background: var(--gold); color: #0a0800; }
+.arrow { transition: transform .3s; }
+.btn:hover .arrow { transform: translateX(4px); }
+.burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+.burger span { display: block; width: 22px; height: 1.5px; background: var(--txt); transition: .3s; }
+
+/* MOBILE NAV */
+.mobile-nav { display: none; position: fixed; inset: var(--nav-h) 0 0 0; background: rgba(8,8,8,.97); backdrop-filter: blur(30px); z-index: 999; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
+.mobile-nav.open { display: flex; }
+.mobile-nav a { font-family: var(--font-display); font-size: 2rem; color: var(--txt); transition: color .3s; }
+.mobile-nav a:hover { color: var(--gold); }
+
+.container { width: min(1240px, 92%); margin: 0 auto; }
+.eyebrow { display: inline-block; font-size: .7rem; letter-spacing: .25em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+.section { padding: 90px 0; }
+.section-head { margin-bottom: 48px; }
+.section-head.center { text-align: center; }
+.section-head h2 { font-family: var(--font-display); font-size: clamp(2rem,4vw,3rem); }
+.section-head p { color: var(--txt-soft); margin-top: 14px; max-width: 580px; }
+.text-gold { color: var(--gold); }
+
+/* REVEAL */
+[data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+[data-reveal].visible { opacity: 1; transform: none; }
+[data-delay="1"] { transition-delay: .12s; }
+[data-delay="2"] { transition-delay: .24s; }
+[data-delay="3"] { transition-delay: .36s; }
+
+/* PAGE HERO */
+.page-hero { min-height: 70vh; display: flex; align-items: center; padding: calc(var(--nav-h) + 70px) 0 50px; text-align: center; position: relative; overflow: hidden; }
+.hero-bg-img { position: absolute; inset: 0; z-index: 0; background: url('https://images.unsplash.com/photo-1532667449560-72a95c8d381b?w=1600&q=80') center/cover no-repeat; transform: scale(1.08); animation: heroZoom 15s ease-in-out infinite alternate; }
+@keyframes heroZoom { to { transform: scale(1); } }
+.hero-bg { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(8,8,8,.3) 0%, rgba(8,8,8,.7) 55%, #0e0e0e 100%); z-index: 1; }
+.page-hero .container { position: relative; z-index: 2; }
+.page-hero h1 { font-family: var(--font-display); font-size: clamp(3rem,7vw,5.5rem); line-height: 1.1; margin: 16px 0 24px; }
+.page-hero p { color: var(--txt-soft); font-size: 1.1rem; max-width: 540px; margin: 0 auto 28px; }
+.crumb { font-size: .75rem; letter-spacing: .15em; color: var(--txt-dim); text-transform: uppercase; margin-top: 14px; }
+.crumb a { color: var(--txt-dim); transition: color .3s; }
+.crumb a:hover { color: var(--gold); }
+
+/* QUICK CONTACT STRIP */
+.quick-strip { background: var(--bg-1); padding: 0; border-top: 1px solid var(--line-subtle); border-bottom: 1px solid var(--line-subtle); }
+.quick-grid { display: grid; grid-template-columns: repeat(3,1fr); }
+.quick-item { display: flex; align-items: center; gap: 16px; padding: 28px 36px; border-right: 1px solid var(--line-subtle); transition: background .3s; }
+.quick-item:last-child { border-right: none; }
+.quick-item:hover { background: rgba(201,160,78,.04); }
+.quick-ic { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--gold); display: grid; place-items: center; color: var(--gold); flex-shrink: 0; font-size: 1.1rem; }
+.quick-item strong { display: block; font-size: .92rem; }
+.quick-item span { color: var(--txt-dim); font-size: .82rem; }
+
+/* CONTACT SECTION */
+.contact-sec { background: var(--bg-0); }
+.contact-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 60px; }
+.contact-info h2, .contact-form h2 { font-family: var(--font-display); font-size: 1.9rem; margin-bottom: 16px; }
+.contact-info > p { color: var(--txt-soft); margin-bottom: 30px; }
+.ci-list li { display: flex; gap: 18px; padding: 18px 0; border-top: 1px solid var(--line); }
+.ci-ic { width: 46px; height: 46px; border: 1px solid var(--gold); border-radius: 50%; display: grid; place-items: center; color: var(--gold); flex-shrink: 0; }
+.ci-list strong { display: block; }
+.ci-list p { color: var(--txt-soft); font-size: .9rem; }
+.map-box {
+  margin-top: 30px; height: 280px; border-radius: var(--radius); border: 1px solid var(--line);
+  overflow: hidden; position: relative;
+}
+.map-box img { width: 100%; height: 100%; object-fit: cover; transition: transform .8s var(--ease); filter: saturate(.8) brightness(.75); }
+.map-box:hover img { transform: scale(1.06); }
+.map-box::after { content:""; position:absolute; inset:0; background: linear-gradient(to top, rgba(8,8,8,.7) 0%, transparent 55%); }
+.map-pin { position: absolute; bottom: 22px; left: 24px; z-index: 2; display: flex; align-items: center; gap: 10px; color: var(--gold-2); letter-spacing: .1em; font-size: .82rem; }
+.map-pin-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--gold-grad); position: relative; }
+.map-pin-dot::after { content:""; position:absolute; inset:-6px; border-radius:50%; border:1px solid var(--gold); animation: pinPulse 2s ease-out infinite; }
+@keyframes pinPulse { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
+
+.contact-form { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 46px; transition: border-color .4s; }
+.contact-form:hover { border-color: rgba(201,160,78,.3); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.field { position: relative; margin-bottom: 26px; }
+.field input, .field textarea, .field select { width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--line-2); padding: 12px 0; color: var(--txt); outline: none; transition: border-color .4s; font-family: var(--font-body); }
+.field select option { background: var(--surface); color: var(--txt); }
+.field label { position: absolute; left: 0; top: 12px; color: var(--txt-dim); pointer-events: none; transition: .3s var(--ease); }
+.field input:focus ~ label, .field input:valid ~ label,
+.field textarea:focus ~ label, .field textarea:valid ~ label,
+.field select:focus ~ label, .field select:valid ~ label,
+.field .sel-label { top: -12px; font-size: .72rem; letter-spacing: .12em; color: var(--gold); }
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--gold); }
+.field input:-webkit-autofill,
+.field input:-webkit-autofill:hover,
+.field input:-webkit-autofill:focus,
+.field input:-webkit-autofill:active,
+.field textarea:-webkit-autofill,
+.field textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--txt);
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+  box-shadow: 0 0 0 1000px var(--surface) inset;
+  caret-color: var(--txt);
+  transition: background-color 5000s ease-in-out 0s;
+}
+.form-note { margin-top: 16px; color: var(--gold-2); font-size: .88rem; min-height: 20px; }
+
+/* BOUTIQUES STRIP */
+.boutiques-sec { background: var(--bg-1); }
+.boutiques-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+.boutique-card { position: relative; height: 240px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); transition: .5s var(--ease); }
+.boutique-card:hover { border-color: var(--gold); transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+.boutique-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s var(--ease); }
+.boutique-card:hover img { transform: scale(1.08); }
+.boutique-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,8,8,.9) 20%, rgba(8,8,8,.1) 70%); display: flex; flex-direction: column; justify-content: flex-end; padding: 22px; }
+.boutique-city { font-family: var(--font-display); font-size: 1.3rem; }
+.boutique-addr { font-size: .8rem; color: var(--txt-soft); margin-top: 4px; }
+
+/* FAQ */
+.faq-sec { background: var(--bg-0); }
+.faq-list { display: flex; flex-direction: column; gap: 2px; max-width: 760px; margin: 0 auto; }
+.faq-item { border: 1px solid var(--line-subtle); border-radius: var(--radius-sm); overflow: hidden; transition: border-color .3s; }
+.faq-item.open { border-color: var(--line); }
+.faq-q { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; gap: 16px; user-select: none; }
+.faq-q span { font-size: .98rem; font-weight: 500; }
+.faq-icon { color: var(--gold); font-size: 1.2rem; transition: transform .3s var(--ease); flex-shrink: 0; }
+.faq-item.open .faq-icon { transform: rotate(45deg); }
+.faq-a { max-height: 0; overflow: hidden; transition: max-height .4s var(--ease); }
+.faq-a p { padding: 0 24px 18px; color: var(--txt-soft); font-size: .9rem; line-height: 1.75; }
+.faq-item.open .faq-a { max-height: 200px; }
+
+/* CTA */
+.cta-sec {
+  text-align: center; position: relative; overflow: hidden;
+  background: url('https://images.unsplash.com/photo-1551818255-e6e10975bc17?w=1600&q=80') center/cover no-repeat;
+}
+.cta-sec::before { content:""; position:absolute; inset:0; background: rgba(8,8,8,.88); }
+.cta-inner { position: relative; z-index: 1; }
+.cta-inner h2 { font-family: var(--font-display); font-size: clamp(2rem,5vw,3.6rem); }
+.cta-inner p { color: var(--txt-soft); margin: 18px auto 36px; max-width: 480px; }
+
+/* FOOTER */
+.footer { background: var(--bg-1); border-top: 1px solid var(--line-subtle); padding: 80px 0 32px; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 2fr; gap: 60px; margin-bottom: 60px; }
+.footer-logo-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.footer-logo-img { height: 30px; width: auto; }
+.footer-logo-text { font-family: var(--font-display); font-size: 1.1rem; letter-spacing: .12em; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.footer-col > p { color: var(--txt-soft); font-size: .88rem; line-height: 1.7; margin-bottom: 24px; }
+.footer-social { display: flex; gap: 14px; }
+.social-link { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; transition: .3s; color: var(--txt-soft); }
+.social-link svg { width: 14px; height: 14px; fill: currentColor; }
+.social-link:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+.footer-col h4 { font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--txt-soft); margin-bottom: 20px; }
+.footer-col ul { list-style: none; }
+.footer-col ul li + li { margin-top: 10px; }
+.footer-col ul a { color: var(--txt-soft); font-size: .88rem; transition: color .3s; }
+.footer-col ul a:hover { color: var(--gold); }
+.footer-news { display: flex; border: 1px solid var(--line); border-radius: 50px; overflow: hidden; margin-top: 14px; }
+.footer-news input { background: transparent; border: none; outline: none; padding: 12px 18px; color: var(--txt); font-size: .85rem; flex: 1; font-family: var(--font-body); }
+.footer-news input::placeholder { color: var(--txt-dim); }
+.footer-news button { background: var(--gold-grad); border: none; padding: 10px 20px; color: #0a0800; font-size: .78rem; font-weight: 600; letter-spacing: .08em; cursor: pointer; transition: opacity .3s; white-space: nowrap; }
+.footer-news button:hover { opacity: .85; }
+.footer-bottom { display: flex; justify-content: space-between; padding-top: 32px; border-top: 1px solid var(--line-subtle); font-size: .75rem; color: var(--txt-dim); }
+
+/* GAP FIXES: compound selectors beat the generic .section rule */
+.section.contact-sec   { padding-top: 56px; }
+.section.boutiques-sec { padding-top: 64px; }
+.section.faq-sec       { padding-top: 64px; }
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .boutiques-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .burger { display: flex; }
+  .contact-grid { grid-template-columns: 1fr; }
+  .quick-grid { grid-template-columns: 1fr; }
+  .quick-item { border-right: none; border-bottom: 1px solid var(--line-subtle); }
+  .quick-item:last-child { border-bottom: none; }
+}
+@media (max-width: 768px) {
+  .section { padding: 64px 0; }
+  .boutiques-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  :root { --nav-h: 62px; }
+  .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+  .field-row { grid-template-columns: 1fr; }
+  .contact-form { padding: 32px 26px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+
+<body>
+<div class="grain"></div>
+<div class="scroll-progress" id="scrollBar"></div>
+
+<div class="preloader" id="preloader">
+  <div class="pre-logo">STACKLY</div>
+  <div class="pre-bar"><span></span></div>
+  <div class="pre-pct" id="prePct">0%</div>
+</div>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="services.html">Services</a>
+  <a href="brands.html">Brands</a>
+  <a href="blog.html">Blog</a>
+  <a href="contact.html" class="text-gold">Contact</a>
+  <a href="login.html">Login</a>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="container">
+    <a href="index.html" class="nav-logo">
+      <img src="./stackly-removebg-preview.png" alt="STACKLY" class="nav-logo-img"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="nav-logo-text" style="display:none">STACKLY</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="brands.html">Brands</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="contact.html" class="active">Contact</a></li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+    <div class="nav-cta">
+      <!-- <a href="login.html" class="nav-icon" title="Account">&#128100;</a>
+      <a href="user-dashboard.html" class="btn btn-gold">Boutique <span class="arrow">→</span></a> -->
+      <div class="burger" id="burger"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="page-hero">
+  <div class="hero-bg-img"></div>
+  <div class="hero-bg"></div>
+  <div class="container">
+    <span class="eyebrow" data-reveal>Get in Touch</span>
+    <h1 data-reveal data-delay="1">Let's Talk <span class="text-gold">Time</span></h1>
+    <p data-reveal data-delay="2">Whether for acquisition, servicing or a private viewing — our advisors await.</p>
+    <div class="crumb" data-reveal data-delay="3"><a href="index.html">Home</a> / Contact</div>
+  </div>
+</section>
+
+<!-- QUICK CONTACT STRIP -->
+<section class="quick-strip">
+  <div class="container quick-grid">
+    <div class="quick-item" data-reveal>
+      <div class="quick-ic">✆</div>
+      <div><strong>Call Us</strong><span>+91 9876543210</span></div>
+    </div>
+    <div class="quick-item" data-reveal data-delay="1">
+      <div class="quick-ic">✉</div>
+      <div><strong>Email Us</strong><span>Hello@stackly.com</span></div>
+    </div>
+    <div class="quick-item" data-reveal data-delay="2">
+      <div class="quick-ic">◷</div>
+      <div><strong>Open Hours</strong><span>Mon–Sat · 10:00–19:00 CET</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT FORM -->
+<section class="section contact-sec">
+  <div class="container contact-grid">
+    <div class="contact-info" data-reveal>
+      <span class="eyebrow">The Flagship</span>
+      <h2>Visit the Maison</h2>
+      <p>Our flagship boutique welcomes you for a private consultation by appointment — or simply walk in to browse the current collection.</p>
+      <ul class="ci-list">
+        <li><span class="ci-ic">⌖</span><div><strong>Boutique</strong><p>MMR Complex , Salem , Tamil Nadu.</p></div></li>
+        <li><span class="ci-ic">✆</span><div><strong>Telephone</strong><p>+91 9876543210</p></div></li>
+        <li><span class="ci-ic">✉</span><div><strong>Email</strong><p>Hello@stackly.com</p></div></li>
+        <li><span class="ci-ic">◷</span><div><strong>Hours</strong><p>Mon–Sat · 10:00 – 19:00 CET</p></div></li>
+      </ul>
+      <div class="map-box">
+        <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80" alt="Geneva waterfront near the STACKLY flagship boutique">
+        <div class="map-pin"><span class="map-pin-dot"></span>Salem , Tamil Nadu</div>
+      </div>
+    </div>
+    <form class="contact-form" id="contactForm" data-reveal data-delay="1">
+      <h2>Request an Appointment</h2>
+      <div class="field-row">
+        <div class="field"><input type="text" required><label>First Name</label></div>
+        <div class="field"><input type="text" required><label>Last Name</label></div>
+      </div>
+      <div class="field"><input type="email" required><label>Email Address</label></div>
+      <div class="field"><input type="tel"><label>Phone</label></div>
+      <div class="field"><select required><option value="" disabled selected></option><option>Private Acquisition</option><option>Servicing</option><option>Bespoke Commission</option><option>General Enquiry</option></select><label class="sel-label">Reason for Contact</label></div>
+      <div class="field"><textarea rows="4" required spellcheck="false"></textarea><label>Your Message</label></div>
+      <button type="submit" class="btn btn-gold">Send Request <span class="arrow">→</span></button>
+      <p class="form-note" id="formNote"></p>
+    </form>
+  </div>
+</section>
+
+<!-- BOUTIQUES STRIP -->
+<!-- <section class="section boutiques-sec">
+  <div class="container">
+    <div class="section-head center" data-reveal>
+      <span class="eyebrow">Worldwide</span>
+      <h2>Visit Us Anywhere</h2>
+      <p style="margin-inline:auto;">Beyond Geneva, STACKLY maintains 32 boutiques across 18 countries — each staffed by advisors trained at the flagship.</p>
+    </div>
+    <div class="boutiques-grid">
+      <div class="boutique-card" data-reveal>
+        <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80" alt="Geneva boutique">
+        <div class="boutique-overlay">
+          <span class="boutique-city">Geneva</span>
+          <span class="boutique-addr">14 Quai du Rhône — Flagship</span>
+        </div>
+      </div>
+      <div class="boutique-card" data-reveal data-delay="1">
+        <img src="https://images.unsplash.com/photo-1543783207-ec64e4d95325?w=600&q=80" alt="London boutique">
+        <div class="boutique-overlay">
+          <span class="boutique-city">London</span>
+          <span class="boutique-addr">22 New Bond Street</span>
+        </div>
+      </div>
+      <div class="boutique-card" data-reveal data-delay="2">
+        <img src="https://images.unsplash.com/photo-1496588152823-86ff7695e68f?w=600&q=80" alt="New York boutique">
+        <div class="boutique-overlay">
+          <span class="boutique-city">New York</span>
+          <span class="boutique-addr">Madison Avenue, 5th Floor</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section> -->
+
+<!-- FAQ -->
+<section class="section faq-sec">
+  <div class="container">
+    <div class="section-head center" data-reveal>
+      <span class="eyebrow">Before You Reach Out</span>
+      <h2>Common Questions</h2>
+    </div>
+    <div class="faq-list" data-reveal data-delay="1">
+      <div class="faq-item open">
+        <div class="faq-q"><span>Do I need an appointment to visit the boutique?</span><div class="faq-icon">+</div></div>
+        <div class="faq-a"><p>Walk-ins are always welcome during open hours, but private consultations and bespoke commissions are by appointment to ensure an advisor's full attention.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>How quickly will an advisor respond?</span><div class="faq-icon">+</div></div>
+        <div class="faq-a"><p>All enquiries submitted through this form receive a response within 24 hours, Monday through Saturday.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>Can I request a virtual consultation?</span><div class="faq-icon">+</div></div>
+        <div class="faq-a"><p>Yes. Select "General Enquiry" in the form and mention your preferred time zone — we'll arrange a video call with a specialist.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>Do you ship internationally?</span><div class="faq-icon">+</div></div>
+        <div class="faq-a"><p>Every acquisition is hand-delivered or shipped fully insured to over 60 countries, with full customs documentation handled on your behalf.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section cta-sec">
+  <div class="container cta-inner" data-reveal>
+    <span class="eyebrow">Private Viewing</span>
+    <h2>Prefer to Speak Directly?</h2>
+    <p>Call our concierge line and we'll connect you with the right advisor immediately.</p>
+    <a href="tel:+41229001898" class="btn btn-gold">Call +41 22 900 1898 <span class="arrow">→</span></a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="footer-logo-wrap">
+          <img src="./stackly-removebg-preview.png" alt="STACKLY" class="footer-logo-img"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <span class="footer-logo-text" style="display:none">STACKLY</span>
+        </div>
+        <p>The world's most discerning maison of fine watchmaking. Crafted in Geneva since 1898.</p>
+        <div class="footer-social">
+          <a href="#" class="social-link" aria-label="X"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.261 5.634 5.903-5.634Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" class="social-link" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg></a>
+          <a href="#" class="social-link" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+          <a href="#" class="social-link" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="brands.html">Brands</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="blog.html">Journal</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Account</h4>
+        <ul>
+          <li><a href="login.html">Sign In</a></li>
+          <li><a href="user-dashboard.html">My Collection</a></li>
+          <li><a href="admin-dashboard.html">Admin</a></li>
+          <li><a href="contact.html">Support</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>The Journal</h4>
+        <p>Subscribe for private releases and horological insight — sent rarely, always worth reading.</p>
+        <form class="footer-news" onsubmit="return false">
+          <input type="email" placeholder="Your email" autocomplete="email">
+          <button type="button">Join</button>
+        </form>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 STACKLY Maison Horlogère. All rights reserved.</span>
+      <span>Privacy · Terms · Geneva, Switzerland</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* PRELOADER */
+(function() {
+  let pct = 0;
+  const el = document.getElementById('prePct');
+  const t = setInterval(() => { pct = Math.min(pct + Math.random()*18, 95); el.textContent = Math.floor(pct)+'%'; }, 80);
+  window.addEventListener('load', () => { clearInterval(t); el.textContent='100%'; setTimeout(()=>document.getElementById('preloader').classList.add('hidden'),400); });
+})();
+
+/* SCROLL PROGRESS */
+window.addEventListener('scroll', () => {
+  const d = document.documentElement;
+  document.getElementById('scrollBar').style.width = (window.scrollY/(d.scrollHeight-d.clientHeight)*100)+'%';
+}, { passive: true });
+
+/* BURGER */
+const burger = document.getElementById('burger');
+const mobileNav = document.getElementById('mobileNav');
+burger.addEventListener('click', () => {
+  mobileNav.classList.toggle('open');
+  const s = burger.querySelectorAll('span'), o = mobileNav.classList.contains('open');
+  s[0].style.transform = o ? 'rotate(45deg) translate(4px,4px)' : '';
+  s[1].style.opacity = o ? '0' : '1';
+  s[2].style.transform = o ? 'rotate(-45deg) translate(4px,-4px)' : '';
+});
+mobileNav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>mobileNav.classList.remove('open')));
+
+/* REVEAL ON SCROLL */
+const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);} }), { threshold: 0.1, rootMargin:'0px 0px -40px 0px' });
+document.querySelectorAll('[data-reveal]').forEach(el=>obs.observe(el));
+
+/* HERO PARALLAX */
+const heroBg = document.querySelector('.hero-bg-img');
+window.addEventListener('scroll', () => { if(heroBg) heroBg.style.transform = `scale(1.08) translateY(${window.scrollY*.2}px)`; }, { passive:true });
+
+/* BOUTIQUE CARD TILT */
+document.querySelectorAll('.boutique-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX-r.left)/r.width-.5, y = (e.clientY-r.top)/r.height-.5;
+    card.style.transform = `translateY(-6px) rotateX(${-y*4}deg) rotateY(${x*4}deg)`;
+  });
+  card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+});
+
+/* FAQ ACCORDION */
+document.querySelectorAll('.faq-q').forEach(q => {
+  q.addEventListener('click', () => {
+    const item = q.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  });
+});
+
+/* CONTACT FORM */
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("contactForm");
+  const note = document.getElementById("formNote");
+  if (!form) return;
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    note.style.color = "var(--gold-2)";
+    note.textContent = "Sending your request…";
+    setTimeout(() => {
+      note.textContent = "✓ Thank you. A STACKLY advisor will contact you within 24 hours.";
+      form.reset();
+    }, 1100);
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Journal — STACKLY</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --gold: #c9a04e;
+  --gold-2: #e0b96a;
+  --gold-grad: linear-gradient(135deg, #e0b96a, #c9a04e, #a07830);
+  --champagne: #f0ebe0;
+  --bg-0: #0a0a0c;
+  --bg-1: #0f0f12;
+  --surface: #17171a;
+  --surface-2: #1e1e22;
+  --line: rgba(201,160,78,.16);
+  --line-2: rgba(255,255,255,.14);
+  --line-subtle: rgba(255,255,255,.07);
+  --txt: #f0ebe0;
+  --txt-soft: #a09a8e;
+  --txt-dim: #635d54;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', sans-serif;
+  --nav-h: 72px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --ease: cubic-bezier(.4,0,.2,1);
+  --shadow-lg: 0 32px 80px rgba(0,0,0,.6);
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg-0); color: var(--txt); line-height: 1.7; overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+/* GRAIN */
+.grain { position: fixed; inset: 0; pointer-events: none; z-index: 9999; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); opacity: .5; }
+
+/* SCROLL PROGRESS */
+.scroll-progress { position: fixed; top: 0; left: 0; height: 2px; width: 0%; background: var(--gold-grad); z-index: 10000; transition: width .1s linear; }
+
+/* PRELOADER */
+.preloader { position: fixed; inset: 0; background: var(--bg-0); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity .6s var(--ease), visibility .6s; }
+.preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.pre-logo { font-family: var(--font-display); font-size: 2.2rem; letter-spacing: .25em; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.pre-bar { width: 220px; height: 1px; background: var(--line); position: relative; overflow: hidden; }
+.pre-bar span { position: absolute; inset-block: 0; left: -100%; width: 100%; background: var(--gold-grad); animation: preLoad .9s var(--ease) forwards; }
+@keyframes preLoad { to { left: 0; } }
+.pre-pct { font-size: .75rem; letter-spacing: .2em; color: var(--txt-dim); }
+
+/* NAV */
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--nav-h); background: rgba(10,10,12,.85); backdrop-filter: blur(24px) saturate(1.4); border-bottom: 1px solid var(--line-subtle); }
+.nav .container { display: flex; align-items: center; justify-content: space-between; height: 100%; }
+.nav-logo { display: flex; align-items: center; gap: 10px; }
+.nav-logo-img { height: 34px; width: auto; }
+.nav-logo-text { font-family: var(--font-display); font-size: 1.25rem; letter-spacing: .12em; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a { font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--txt-soft); transition: color .3s; position: relative; }
+.nav-links a::after { content:""; position:absolute; bottom:-4px; left:0; right:0; height:1px; background:var(--gold); transform:scaleX(0); transition:transform .3s var(--ease); }
+.nav-links a:hover, .nav-links a.active { color: var(--txt); }
+.nav-links a:hover::after, .nav-links a.active::after { transform:scaleX(1); }
+.nav-cta { display: flex; align-items: center; gap: 18px; }
+.nav-icon { font-size: 1.1rem; color: var(--txt-soft); transition: color .3s; }
+.nav-icon:hover { color: var(--gold); }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 26px; border-radius: 50px; font-size: .78rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; transition: .3s var(--ease); cursor: pointer; border: none; font-family: var(--font-body); }
+.btn-gold { background: var(--gold-grad); color: #0a0800; }
+.btn-gold:hover { opacity: .85; transform: translateY(-1px); box-shadow: 0 8px 32px rgba(201,160,78,.3); }
+.btn-ghost { background: transparent; color: var(--txt); border: 1px solid rgba(255,255,255,.2); }
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+.arrow { transition: transform .3s; }
+.btn:hover .arrow { transform: translateX(4px); }
+.burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+.burger span { display: block; width: 22px; height: 1.5px; background: var(--txt); transition: .3s; }
+
+/* MOBILE NAV */
+.mobile-nav { display: none; position: fixed; inset: var(--nav-h) 0 0 0; background: rgba(10,10,12,.97); backdrop-filter: blur(30px); z-index: 999; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
+.mobile-nav.open { display: flex; }
+.mobile-nav a { font-family: var(--font-display); font-size: 2rem; color: var(--txt); transition: color .3s; }
+.mobile-nav a:hover { color: var(--gold); }
+
+.container { width: min(1240px, 92%); margin: 0 auto; }
+.eyebrow { display: inline-block; font-size: .7rem; letter-spacing: .25em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+.section { padding: 76px 0; }
+.section-head { margin-bottom: 44px; }
+.section-head.center { text-align: center; }
+.section-head h2 { font-family: var(--font-display); font-size: clamp(2rem,4vw,3rem); }
+.section-head p { color: var(--txt-soft); margin-top: 14px; max-width: 580px; }
+.text-gold { color: var(--gold); }
+
+/* REVEAL */
+[data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+[data-reveal].visible { opacity: 1; transform: none; }
+[data-delay="1"] { transition-delay: .12s; }
+[data-delay="2"] { transition-delay: .24s; }
+[data-delay="3"] { transition-delay: .36s; }
+
+/* ---------- PAGE HERO ---------- */
+.page-hero { background: var(--bg-0); min-height: 58vh; display: flex; align-items: center; padding: calc(var(--nav-h) + 56px) 0 48px; text-align: center; position: relative; overflow: hidden; }
+.page-hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background-image: url("https://images.unsplash.com/photo-1533603905650-c873cb508859?q=80&w=1800&auto=format&fit=crop");
+  background-size: cover; background-position: center 40%;
+  opacity: .3; filter: saturate(.85);
+  transform: scale(1.08);
+  animation: heroZoom 16s ease-in-out infinite alternate;
+}
+@keyframes heroZoom { to { transform: scale(1); } }
+.page-hero-fade {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, rgba(10,10,12,.5) 0%, rgba(10,10,12,.8) 55%, var(--bg-0) 100%);
+}
+.page-hero .container { position: relative; z-index: 2; }
+.page-hero h1 { font-family: var(--font-display); font-size: clamp(3rem,7vw,5.5rem); line-height: 1.1; margin: 16px 0 24px; }
+.page-hero p { color: var(--txt-soft); font-size: 1.1rem; max-width: 540px; margin: 0 auto 28px; }
+.crumb { font-size: .75rem; letter-spacing: .15em; color: var(--txt-dim); text-transform: uppercase; margin-top: 14px; }
+.crumb a { color: var(--txt-dim); transition: color .3s; }
+.crumb a:hover { color: var(--gold); }
+
+/* ---------- STATS STRIP ---------- */
+.stats-sec { padding: 44px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--bg-1); }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; text-align: center; }
+.stat-item h3 { font-size: clamp(2.2rem, 4vw, 3.2rem); color: var(--gold-2); margin-bottom: 6px; font-variant-numeric: tabular-nums; font-family: var(--font-display); }
+.stat-item p { color: var(--txt-dim); font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; }
+
+/* ---------- FILTER + FEATURE ---------- */
+.blog-feature { background: var(--bg-0); }
+.filter-row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 40px; }
+.filter-pill { padding: 10px 22px; border-radius: 50px; border: 1px solid var(--line-2); font-size: .76rem; letter-spacing: .1em; text-transform: uppercase; color: var(--txt-soft); cursor: pointer; transition: .35s var(--ease); background: transparent; }
+.filter-pill:hover, .filter-pill.active { border-color: var(--gold); color: var(--gold-2); background: rgba(201,160,78,.08); transform: translateY(-2px); }
+
+.feature-post { display: grid; grid-template-columns: 1.2fr 1fr; gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; transition: .5s var(--ease); }
+.feature-post:hover { border-color: var(--gold); box-shadow: var(--shadow-lg); }
+.fp-media { min-height: 420px; position: relative; overflow: hidden; }
+.fp-media img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; filter: saturate(.85) brightness(.8); transform: scale(1.04); transition: transform 1s var(--ease); }
+.feature-post:hover .fp-media img { transform: scale(1.12); }
+.fp-media::before { content:""; position:absolute; inset:0; background: linear-gradient(135deg, rgba(201,160,78,.18), transparent 60%); mix-blend-mode: screen; z-index: 1; }
+.fp-body { padding: 50px; display: flex; flex-direction: column; justify-content: center; }
+.fp-body h2 { font-family: var(--font-display); font-size: clamp(1.6rem,3vw,2.4rem); margin: 16px 0; }
+.fp-body p { color: var(--txt-soft); margin-bottom: 22px; }
+.post-cat { font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+.post-meta { color: var(--txt-dim); font-size: .82rem; margin-bottom: 26px; }
+
+/* Secondary features row (sits below the main feature post) */
+.sub-feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+.sub-feature { display: flex; gap: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 20px; transition: .4s var(--ease); cursor: pointer; }
+.sub-feature:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.sf-media { width: 120px; height: 100px; border-radius: 8px; overflow: hidden; flex-shrink: 0; position: relative; }
+.sf-media img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--ease); filter: saturate(.85) brightness(.85); }
+.sub-feature:hover .sf-media img { transform: scale(1.1); }
+.sf-body { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.sf-body .post-cat { font-size: .64rem; letter-spacing: .16em; }
+.sf-body h3 { font-size: 1rem; line-height: 1.35; margin: 6px 0 8px; }
+.sf-meta { color: var(--txt-dim); font-size: .76rem; }
+
+/* ---------- BLOG GRID ---------- */
+.blog-grid-sec { background: var(--bg-0); }
+.blog-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 30px; }
+.post { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: .5s var(--ease); }
+.post:hover { transform: translateY(-8px); border-color: var(--gold); box-shadow: var(--shadow-lg); }
+.post-media { height: 220px; position: relative; overflow: hidden; }
+.post-media img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.8) brightness(.78); transform: scale(1.06); transition: transform .6s var(--ease), filter .6s var(--ease); }
+.post:hover .post-media img { transform: scale(1.16); filter: saturate(1) brightness(.85); }
+.post-media::after { content: "⌚"; position:absolute; inset:0; display:grid; place-items:center; font-size:2.6rem; color: rgba(243,228,192,.5); opacity: 0; transition: opacity .4s; pointer-events: none; }
+.post:hover .post-media::after { opacity: 1; }
+.post-content { padding: 26px; }
+.post-content h3 { font-size: 1.25rem; margin: 12px 0 14px; line-height: 1.3; }
+.post-read { display: inline-flex; align-items: center; gap: 8px; color: var(--gold-2); font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; margin-top: 4px; }
+.post-read svg { width: 14px; height: 14px; transition: transform .35s var(--ease); }
+.post:hover .post-read svg { transform: translateX(5px); }
+
+/* ---------- LOAD MORE ---------- */
+.load-more-wrap { text-align: center; margin-top: 32px; }
+
+/* ---------- GLOSSARY ---------- */
+.glossary-sec { background: var(--bg-0); }
+.glossary-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+.glossary-item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 24px 26px; transition: .35s var(--ease); }
+.glossary-item:hover { border-color: var(--gold); transform: translateY(-4px); }
+.glossary-term { font-family: var(--font-display); font-size: 1.1rem; color: var(--gold-2); margin-bottom: 8px; }
+.glossary-def { color: var(--txt-soft); font-size: .87rem; line-height: 1.65; }
+
+/* ---------- AUTHORS STRIP ---------- */
+.authors-sec { background: var(--bg-1); }
+.authors-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; }
+.author-card { text-align: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 32px 22px; transition: .4s var(--ease); }
+.author-card:hover { border-color: var(--gold); transform: translateY(-6px); }
+.author-photo { width: 84px; height: 84px; border-radius: 50%; overflow: hidden; margin: 0 auto 16px; border: 1px solid var(--line); }
+.author-photo img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(15%); transition: filter .4s; }
+.author-card:hover .author-photo img { filter: grayscale(0%); }
+.author-card h4 { font-size: 1rem; margin-bottom: 4px; }
+.author-card p { color: var(--txt-dim); font-size: .8rem; letter-spacing: .04em; }
+
+/* ---------- SPOTLIGHT / QUOTE ---------- */
+.spotlight-sec { background: var(--bg-1); }
+.spotlight-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 60px; align-items: center; }
+.sp-media { height: 420px; border-radius: var(--radius); overflow: hidden; position: relative; border: 1px solid var(--line); }
+.sp-media img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.85) brightness(.8); transition: transform .8s var(--ease); }
+.sp-media:hover img { transform: scale(1.05); }
+.sp-quote { font-family: var(--font-display); font-size: clamp(1.4rem, 2.6vw, 2rem); line-height: 1.4; color: var(--champagne); }
+.sp-quote span { color: var(--gold); font-size: 2.4rem; line-height: 0; vertical-align: -10px; }
+.sp-attr { margin-top: 22px; color: var(--txt-dim); font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; }
+
+/* ---------- NEWSLETTER ---------- */
+.newsletter-sec { text-align: center; background: radial-gradient(ellipse at 50% 50%, rgba(201,160,78,.12), transparent 60%), var(--bg-1); position: relative; overflow: hidden; }
+.nl-orb { position: absolute; width: 460px; height: 460px; border-radius: 50%; background: radial-gradient(circle, rgba(201,160,78,.14), transparent 70%); top: -180px; left: 50%; transform: translateX(-50%); animation: orb-pulse 7s ease-in-out infinite; }
+@keyframes orb-pulse { 0%,100% { opacity: .6; transform: translateX(-50%) scale(1); } 50% { opacity: 1; transform: translateX(-50%) scale(1.15); } }
+.nl-inner { position: relative; z-index: 1; }
+.nl-inner h2 { font-family: var(--font-display); font-size: clamp(2rem,5vw,3.2rem); }
+.nl-inner p { color: var(--txt-soft); margin: 16px 0 30px; }
+.nl-form { display: flex; gap: 14px; max-width: 540px; margin: 0 auto; flex-wrap: wrap; justify-content: center; }
+.nl-form input { flex: 1; min-width: 0; background: var(--surface); border: 1px solid var(--line-2); border-radius: 50px; padding: 16px 26px; color: var(--txt); outline: none; transition: border-color .3s; font-family: var(--font-body); }
+.nl-form input:focus { border-color: var(--gold); }
+.nl-form input::placeholder { color: var(--txt-dim); }
+
+/* ---------- FOOTER ---------- */
+.footer { background: var(--bg-1); border-top: 1px solid var(--line-subtle); padding: 80px 0 32px; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 2fr; gap: 60px; margin-bottom: 60px; }
+.footer-logo-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.footer-logo-img { height: 30px; width: auto; }
+.footer-logo-text { font-family: var(--font-display); font-size: 1.1rem; letter-spacing: .12em; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.footer-col > p { color: var(--txt-soft); font-size: .88rem; line-height: 1.7; margin-bottom: 24px; }
+.footer-social { display: flex; gap: 14px; }
+.social-link { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; transition: .3s; color: var(--txt-soft); }
+.social-link svg { width: 14px; height: 14px; fill: currentColor; }
+.social-link:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+.footer-col h4 { font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--txt-soft); margin-bottom: 20px; }
+.footer-col ul { list-style: none; }
+.footer-col ul li + li { margin-top: 10px; }
+.footer-col ul a { color: var(--txt-soft); font-size: .88rem; transition: color .3s; }
+.footer-col ul a:hover { color: var(--gold); }
+.footer-news { display: flex; border: 1px solid var(--line); border-radius: 50px; overflow: hidden; margin-top: 14px; }
+.footer-news input { background: transparent; border: none; outline: none; padding: 12px 18px; color: var(--txt); font-size: .85rem; flex: 1; font-family: var(--font-body); }
+.footer-news input::placeholder { color: var(--txt-dim); }
+.footer-news button { background: var(--gold-grad); border: none; padding: 10px 20px; color: #0a0800; font-size: .78rem; font-weight: 600; letter-spacing: .08em; cursor: pointer; transition: opacity .3s; white-space: nowrap; }
+.footer-news button:hover { opacity: .85; }
+.footer-bottom { display: flex; justify-content: space-between; padding-top: 32px; border-top: 1px solid var(--line-subtle); font-size: .75rem; color: var(--txt-dim); }
+
+/* GAP FIXES — compound selectors beat the generic .section rule */
+.section.blog-feature    { padding-top: 50px; }
+.section.blog-grid-sec   { padding-top: 0; padding-bottom: 60px; }
+.section.authors-sec     { padding-top: 60px; }
+.section.spotlight-sec   { padding-top: 50px; }
+.section.newsletter-sec  { padding-top: 70px; }
+.section.glossary-sec    { padding-top: 0; }
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .authors-grid { grid-template-columns: 1fr 1fr; }
+  .stats-grid { grid-template-columns: repeat(2,1fr); gap: 36px 20px; }
+  .blog-grid { grid-template-columns: 1fr 1fr; }
+  .glossary-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .burger { display: flex; }
+  .feature-post { grid-template-columns: 1fr; }
+  .fp-media { min-height: 260px; }
+  .spotlight-grid { grid-template-columns: 1fr; gap: 36px; }
+  .sp-media { height: 280px; }
+  .sub-feature-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .section { padding: 56px 0; }
+  .blog-grid { grid-template-columns: 1fr; max-width: 420px; margin-inline: auto; }
+  .authors-grid { grid-template-columns: 1fr 1fr; }
+  .fp-body { padding: 30px 26px; }
+  .glossary-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  :root { --nav-h: 62px; }
+  .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+  .nl-form input { min-width: 100%; }
+  .authors-grid { grid-template-columns: 1fr; }
+  .sub-feature { flex-direction: column; }
+  .sf-media { width: 100%; height: 140px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+
+<body>
+<div class="grain"></div>
+<div class="scroll-progress" id="scrollBar"></div>
+
+<div class="preloader" id="preloader">
+  <div class="pre-logo">STACKLY</div>
+  <div class="pre-bar"><span></span></div>
+  <div class="pre-pct" id="prePct">0%</div>
+</div>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="services.html">Services</a>
+  <a href="brands.html">Brands</a>
+  <a href="blog.html" class="text-gold">Blog</a>
+  <a href="contact.html">Contact</a>
+  <a href="login.html">Login</a>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="container">
+    <a href="index.html" class="nav-logo">
+      <img src="./stackly-removebg-preview.png" alt="STACKLY" class="nav-logo-img"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="nav-logo-text" style="display:none">STACKLY</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="brands.html">Brands</a></li>
+      <li><a href="blog.html" class="active">Blog</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+    <div class="nav-cta">
+      <!-- <a href="login.html" class="nav-icon" title="Account">&#128100;</a>
+      <a href="user-dashboard.html" class="btn btn-gold">Boutique <span class="arrow">→</span></a> -->
+      <div class="burger" id="burger"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-fade"></div>
+  <div class="container">
+    <span class="eyebrow" data-reveal>The Journal</span>
+    <h1 data-reveal data-delay="1">Horological <span class="text-gold">Insight</span></h1>
+    <p data-reveal data-delay="2">Stories of craft, collecting and the quiet obsession of fine watchmaking.</p>
+    <a href="#blog-grid-sec" class="btn btn-ghost" data-reveal data-delay="3">Browse Stories <span class="arrow">→</span></a>
+    <div class="crumb" data-reveal data-delay="3"><a href="index.html">Home</a> / Journal</div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-sec">
+  <div class="container stats-grid">
+    <div class="stat-item" data-reveal><h3><span data-count="86">0</span></h3><p>Stories Published</p></div>
+    <div class="stat-item" data-reveal data-delay="1"><h3><span data-count="12">0</span></h3><p>Master Contributors</p></div>
+    <div class="stat-item" data-reveal data-delay="2"><h3><span data-count="40">0</span></h3><p>Thousand Readers</p></div>
+    <div class="stat-item" data-reveal data-delay="3"><h3><span data-count="6">0</span></h3><p>Years Running</p></div>
+  </div>
+</section>
+
+<!-- FILTER + FEATURE POST -->
+<section class="section blog-feature">
+  <div class="container">
+    <div class="filter-row" data-reveal>
+      <button class="filter-pill active">All</button>
+      <button class="filter-pill">Craftsmanship</button>
+      <button class="filter-pill">Collecting</button>
+      <button class="filter-pill">Heritage</button>
+      <button class="filter-pill">Movement</button>
+      <button class="filter-pill">Design</button>
+    </div>
+    <article class="feature-post" data-reveal>
+      <div class="fp-media">
+        <img src="https://images.unsplash.com/photo-1517643070288-f6b3933ad727?q=80&w=1200&auto=format&fit=crop" alt="Close-up of a gold tourbillon watch movement with exposed gears" loading="lazy">
+      </div>
+      <div class="fp-body">
+        <span class="post-cat">Craftsmanship</span>
+        <h2>Inside the Tourbillon: 98 Hours of Pure Devotion</h2>
+        <p>We spent a week beside master horologist Henri Laurent as he assembled a single tourbillon escapement — a meditation on patience and precision.</p>
+        <div class="post-meta"><span>Henri Laurent</span> · <span>8 min read</span> · <span>Mar 2025</span></div>
+        <a href="#" class="btn btn-ghost">Read Story <span class="arrow">→</span></a>
+      </div>
+    </article>
+
+    <div class="sub-feature-grid">
+      <article class="sub-feature" data-reveal data-delay="1">
+        <div class="sf-media">
+          <img src="https://images.unsplash.com/photo-1594534475808-b18fc33b045e?q=80&w=300&auto=format&fit=crop" alt="A perpetual calendar complication close-up">
+        </div>
+        <div class="sf-body">
+          <span class="post-cat">Movement</span>
+          <h3>Perpetual Calendars Explained: A Century Without Correction</h3>
+          <div class="sf-meta">Clara Bénard · 6 min read</div>
+        </div>
+      </article>
+      <article class="sub-feature" data-reveal data-delay="2">
+        <div class="sf-media">
+          <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?q=80&w=300&auto=format&fit=crop" alt="A collector examining a watch under loupe">
+        </div>
+        <div class="sf-body">
+          <span class="post-cat">Collecting</span>
+          <h3>What Separates a Grail Watch from a Good One</h3>
+          <div class="sf-meta">Marco Visconti · 7 min read</div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG GRID -->
+<section class="section blog-grid-sec" id="blog-grid-sec">
+  <div class="container">
+    <div class="blog-grid">
+      <article class="post" data-reveal>
+        <div class="post-media"><img src="https://images.unsplash.com/photo-1731446451263-fc3881d4973d?q=80&w=700&auto=format&fit=crop" alt="A collector's vintage timepiece resting on a dark surface" loading="lazy"></div>
+        <div class="post-content"><span class="post-cat">Collecting</span><h3>The Five Watches Every Collector Eventually Wants</h3><div class="post-meta"><span>5 min</span> · <span>Feb 2025</span></div><span class="post-read">Read More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+      </article>
+      <article class="post" data-reveal data-delay="1">
+        <div class="post-media"><img src="https://images.unsplash.com/photo-1556217603-5c5549493250?q=80&w=700&auto=format&fit=crop" alt="A historic Geneva watchmaking storefront window" loading="lazy"></div>
+        <div class="post-content"><span class="post-cat">Heritage</span><h3>How Geneva Became the Capital of Time</h3><div class="post-meta"><span>7 min</span> · <span>Feb 2025</span></div><span class="post-read">Read More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+      </article>
+      <article class="post" data-reveal data-delay="2">
+        <div class="post-media"><img src="https://images.unsplash.com/photo-1480797571962-18ab07ee47ab?q=80&w=700&auto=format&fit=crop" alt="An opened antique pocket watch revealing its movement" loading="lazy"></div>
+        <div class="post-content"><span class="post-cat">Movement</span><h3>Automatic vs Manual: A Question of Philosophy</h3><div class="post-meta"><span>6 min</span> · <span>Jan 2025</span></div><span class="post-read">Read More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+      </article>
+      <article class="post" data-reveal>
+        <div class="post-media"><img src="https://images.unsplash.com/photo-1664437235473-65aaf8912d20?q=80&w=700&auto=format&fit=crop" alt="A watchmaker's hands carefully servicing a timepiece" loading="lazy"></div>
+        <div class="post-content"><span class="post-cat">Care</span><h3>The Art of Servicing a Vintage Timepiece</h3><div class="post-meta"><span>9 min</span> · <span>Jan 2025</span></div><span class="post-read">Read More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+      </article>
+      <article class="post" data-reveal data-delay="1">
+        <div class="post-media"><img src="https://images.unsplash.com/photo-1517643070288-f6b3933ad727?q=80&w=700&auto=format&fit=crop&fp-x=0.4&fp-y=0.6" alt="Close detail of a watch dial complication" loading="lazy"></div>
+        <div class="post-content"><span class="post-cat">Design</span><h3>Why the Moonphase Endures Through Centuries</h3><div class="post-meta"><span>5 min</span> · <span>Dec 2024</span></div><span class="post-read">Read More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+      </article>
+      <article class="post" data-reveal data-delay="2">
+        <div class="post-media"><img src="https://images.unsplash.com/photo-1533603905650-c873cb508859?q=80&w=700&auto=format&fit=crop" alt="A row of vintage pocket watches displayed in a shop" loading="lazy"></div>
+        <div class="post-content"><span class="post-cat">Investment</span><h3>Reading the Market: Watches as an Asset Class</h3><div class="post-meta"><span>10 min</span> · <span>Dec 2024</span></div><span class="post-read">Read More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+      </article>
+      <article class="post" data-reveal>
+        <div class="post-media"><img src="https://images.unsplash.com/photo-1625456767799-dd642223737d?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dGl0YW58ZW58MHx8MHx8fDA%3D" alt="A watchmaker assembling a fine movement at the bench" loading="lazy"></div>
+        <div class="post-content"><span class="post-cat">Craftsmanship</span><h3>3,000 Hours of Finishing: What It Actually Looks Like</h3><div class="post-meta"><span>6 min</span> · <span>Nov 2024</span></div><span class="post-read">Read More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+      </article>
+      <article class="post" data-reveal data-delay="1">
+        <div class="post-media"><img src="https://images.unsplash.com/photo-1622434641406-a158123450f9?q=80&w=700&auto=format&fit=crop" alt="An auction room with bidders viewing a watch lot" loading="lazy"></div>
+        <div class="post-content"><span class="post-cat">Collecting</span><h3>Inside a Geneva Watch Auction: A First-Timer's Guide</h3><div class="post-meta"><span>7 min</span> · <span>Nov 2024</span></div><span class="post-read">Read More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+      </article>
+      <article class="post" data-reveal data-delay="2">
+        <div class="post-media"><img src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=700&auto=format&fit=crop" alt="A diver's watch submerged in clear water" loading="lazy"></div>
+        <div class="post-content"><span class="post-cat">Design</span><h3>The Dive Watch: From Tool to Icon</h3><div class="post-meta"><span>5 min</span> · <span>Oct 2024</span></div><span class="post-read">Read More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+      </article>
+    </div>
+    <div class="load-more-wrap" data-reveal>
+      <button class="btn btn-ghost" id="loadMoreBtn">Load More Stories <span class="arrow">→</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<section class="section glossary-sec">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">Speak the Language</span>
+      <h2>A Collector's Glossary</h2>
+      <p>Six terms worth knowing before your next conversation with an advisor.</p>
+    </div>
+    <div class="glossary-grid">
+      <div class="glossary-item" data-reveal>
+        <div class="glossary-term">Tourbillon</div>
+        <div class="glossary-def">A rotating cage housing the escapement, designed to counteract the effects of gravity on accuracy — now prized as a display of mechanical mastery.</div>
+      </div>
+      <div class="glossary-item" data-reveal data-delay="1">
+        <div class="glossary-term">Power Reserve</div>
+        <div class="glossary-def">The duration a watch will run after being fully wound, without further winding or wrist motion.</div>
+      </div>
+      <div class="glossary-item" data-reveal data-delay="2">
+        <div class="glossary-term">Côtes de Genève</div>
+        <div class="glossary-def">A decorative striped pattern hand-finished onto movement bridges — equal parts ornament and proof of craftsmanship.</div>
+      </div>
+      <div class="glossary-item" data-reveal>
+        <div class="glossary-term">Chronometer</div>
+        <div class="glossary-def">A watch movement certified by an official body (such as COSC) to meet strict precision standards across multiple positions and temperatures.</div>
+      </div>
+      <div class="glossary-item" data-reveal data-delay="1">
+        <div class="glossary-term">Complication</div>
+        <div class="glossary-def">Any function beyond basic timekeeping — moonphase, perpetual calendar, chronograph — each adding mechanical and assembly complexity.</div>
+      </div>
+      <div class="glossary-item" data-reveal data-delay="2">
+        <div class="glossary-term">In-House Movement</div>
+        <div class="glossary-def">A calibre designed, manufactured and finished entirely within a single maison, rather than sourced from a third-party movement supplier.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUTHORS -->
+<section class="section authors-sec">
+  <div class="container">
+    <div class="section-head center" data-reveal>
+      <span class="eyebrow">The Contributors</span>
+      <h2>Voices of the Journal</h2>
+      <p style="margin-inline:auto;">Master watchmakers, historians and collectors who lend their expertise to every story we publish.</p>
+    </div>
+    <div class="authors-grid">
+      <div class="author-card" data-reveal>
+        <div class="author-photo"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80" alt="Henri Laurent"></div>
+        <h4>Henri Laurent</h4>
+        <p>Master Horologist</p>
+      </div>
+      <div class="author-card" data-reveal data-delay="1">
+        <div class="author-photo"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80" alt="Anaïs Roche"></div>
+        <h4>Anaïs Roche</h4>
+        <p>Creative Director</p>
+      </div>
+      <div class="author-card" data-reveal data-delay="2">
+        <div class="author-photo"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80" alt="Marco Visconti"></div>
+        <h4>Marco Visconti</h4>
+        <p>Director of Finishing</p>
+      </div>
+      <div class="author-card" data-reveal data-delay="3">
+        <div class="author-photo"><img src="https://plus.unsplash.com/premium_photo-1690407617542-2f210cf20d7e?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGVvcGxlfGVufDB8fDB8fHww" alt="Clara Bénard"></div>
+        <h4>Clara Bénard</h4>
+        <p>Head of Movement Design</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPOTLIGHT QUOTE -->
+<section class="section spotlight-sec">
+  <div class="container spotlight-grid">
+    <div class="sp-media" data-reveal>
+      <img src="https://images.unsplash.com/photo-1480797571962-18ab07ee47ab?q=80&w=900&auto=format&fit=crop" alt="A finished pocket watch resting on dark fabric" loading="lazy">
+    </div>
+    <div data-reveal data-delay="1">
+      <span class="eyebrow">From the Editor</span>
+      <p class="sp-quote" style="margin-top:18px;"><span>&ldquo;</span>A watch is the only machine most of us will ever own that is built to outlive us. Every story in this journal is, in some way, about that quiet act of faith.&rdquo;</p>
+      <p class="sp-attr">Anaïs Roche — Creative Director, STACKLY</p>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="section newsletter-sec">
+  <div class="nl-orb"></div>
+  <div class="container nl-inner" data-reveal>
+    <span class="eyebrow">Stay Informed</span>
+    <h2>Never Miss a Release</h2>
+    <p>Subscribe to the STACKLY Journal — private releases and horological insight, sent rarely.</p>
+    <form class="nl-form" onsubmit="return false">
+      <input type="email" placeholder="Your email address" autocomplete="email">
+      <button class="btn btn-gold" type="submit">Subscribe</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="footer-logo-wrap">
+          <img src="./stackly-removebg-preview.png" alt="STACKLY" class="footer-logo-img"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <span class="footer-logo-text" style="display:none">STACKLY</span>
+        </div>
+        <p>The world's most discerning maison of fine watchmaking. Crafted in Geneva since 1898.</p>
+        <div class="footer-social">
+          <a href="#" class="social-link" aria-label="X"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.261 5.634 5.903-5.634Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" class="social-link" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg></a>
+          <a href="#" class="social-link" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+          <a href="#" class="social-link" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="brands.html">Brands</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Account</h4>
+        <ul>
+          <li><a href="login.html">Sign In</a></li>
+          <li><a href="user-dashboard.html">My Collection</a></li>
+          <li><a href="admin-dashboard.html">Admin</a></li>
+          <li><a href="contact.html">Support</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>The Journal</h4>
+        <p>Subscribe for private releases and horological insight — sent rarely, always worth reading.</p>
+        <form class="footer-news" onsubmit="return false">
+          <input type="email" placeholder="Your email" autocomplete="email">
+          <button type="submit">Join</button>
+        </form>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 STACKLY Maison Horlogère. All rights reserved.</span>
+      <span>Privacy · Terms · Geneva, Switzerland</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* PRELOADER */
+(function() {
+  let pct = 0;
+  const el = document.getElementById('prePct');
+  const t = setInterval(() => { pct = Math.min(pct + Math.random()*18, 95); el.textContent = Math.floor(pct)+'%'; }, 80);
+  window.addEventListener('load', () => { clearInterval(t); el.textContent='100%'; setTimeout(()=>document.getElementById('preloader').classList.add('hidden'),400); });
+})();
+
+/* SCROLL PROGRESS */
+window.addEventListener('scroll', () => {
+  const d = document.documentElement;
+  document.getElementById('scrollBar').style.width = (window.scrollY/(d.scrollHeight-d.clientHeight)*100)+'%';
+}, { passive: true });
+
+/* BURGER */
+const burger = document.getElementById('burger');
+const mobileNav = document.getElementById('mobileNav');
+burger.addEventListener('click', () => {
+  mobileNav.classList.toggle('open');
+  const s = burger.querySelectorAll('span'), o = mobileNav.classList.contains('open');
+  s[0].style.transform = o ? 'rotate(45deg) translate(4px,4px)' : '';
+  s[1].style.opacity = o ? '0' : '1';
+  s[2].style.transform = o ? 'rotate(-45deg) translate(4px,-4px)' : '';
+});
+mobileNav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>mobileNav.classList.remove('open')));
+
+/* REVEAL ON SCROLL */
+const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);} }), { threshold: 0.1, rootMargin:'0px 0px -40px 0px' });
+document.querySelectorAll('[data-reveal]').forEach(el=>obs.observe(el));
+
+/* HERO PARALLAX */
+const heroBg = document.querySelector('.page-hero-bg');
+window.addEventListener('scroll', () => { if(heroBg) heroBg.style.transform = `scale(1.08) translateY(${window.scrollY*.18}px)`; }, { passive:true });
+
+/* STAT COUNTER */
+const countUp = (el, target) => {
+  const start = performance.now();
+  const dur = 1700;
+  const step = ts => {
+    const prog = Math.min((ts-start)/dur,1);
+    const ease = 1-Math.pow(1-prog,3);
+    el.textContent = Math.round(target*ease);
+    if(prog<1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+};
+const statObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return;
+    const span = e.target.querySelector('[data-count]');
+    if(!span || span.dataset.counted) return;
+    span.dataset.counted = '1';
+    countUp(span, parseInt(span.dataset.count,10));
+  });
+},{threshold:0.5});
+document.querySelectorAll('.stat-item').forEach(s=>statObs.observe(s));
+
+/* POST CLICK FEEDBACK */
+document.querySelectorAll(".post").forEach(p => {
+  p.addEventListener("click", () => {
+    p.style.transform = "scale(0.98)";
+    setTimeout(() => p.style.transform = "", 180);
+  });
+});
+
+/* CATEGORY FILTER */
+const pills = document.querySelectorAll(".filter-pill");
+const posts = document.querySelectorAll(".post");
+pills.forEach(pill => {
+  pill.addEventListener("click", () => {
+    pills.forEach(p => p.classList.remove("active"));
+    pill.classList.add("active");
+    const cat = pill.textContent.trim();
+    posts.forEach(post => {
+      const postCat = post.querySelector(".post-cat").textContent.trim();
+      const show = cat === "All" || cat === postCat;
+      post.style.display = show ? "" : "none";
+    });
+  });
+});
+
+/* LOAD MORE (visual feedback only) */
+const loadBtn = document.getElementById('loadMoreBtn');
+if (loadBtn) {
+  loadBtn.addEventListener('click', () => {
+    loadBtn.textContent = 'All Stories Loaded';
+    loadBtn.style.opacity = '.6';
+    loadBtn.style.pointerEvents = 'none';
+  });
+}
+</script>
+</body>
+</html>
