@@ -49,14 +49,23 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
 /* SCROLL PROGRESS */
 .scroll-progress{position:fixed;top:0;left:0;height:2px;background:var(--gold-grad);z-index:1001;width:0%;transition:width .1s;}
 
+/* PRELOADER */
+.preloader{position:fixed;inset:0;background:var(--bg-0);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .6s var(--ease),visibility .6s;}
+.preloader.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+.pre-logo{font-family:var(--font-display);font-size:2.2rem;letter-spacing:.25em;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.pre-bar{width:220px;height:1px;background:var(--line);position:relative;overflow:hidden;}
+.pre-bar span{position:absolute;inset-block:0;left:-100%;width:100%;background:var(--gold-grad);animation:preLoad .9s var(--ease) forwards;}
+@keyframes preLoad{to{left:0;}}
+.pre-pct{font-size:.75rem;letter-spacing:.2em;color:var(--txt-dim);}
+
 /* NAVBAR */
-.nav-logo{display:flex;align-items:center;justify-content:center;text-decoration:none;flex-shrink:0;}
-.nav-logo img{width:200px;height:auto;display:block;object-fit:contain;user-select:none;transition:all .4s ease;filter:drop-shadow(0 2px 6px rgba(0,0,0,.45)) drop-shadow(0 0 10px rgba(224,185,106,.18));}
+.nav-logo{display:flex;align-items:center;justify-content:center;text-decoration:none;flex-shrink:0;gap:10px;}
+.nav-logo img{height:38px;width:auto;max-width:180px;display:block;object-fit:contain;user-select:none;transition:all .4s ease;filter:drop-shadow(0 2px 6px rgba(0,0,0,.45)) drop-shadow(0 0 10px rgba(224,185,106,.18));}
 .nav-logo:hover img{transform:scale(1.03);filter:brightness(1.06) drop-shadow(0 0 18px rgba(224,185,106,.45)) drop-shadow(0 6px 14px rgba(0,0,0,.35));}
-.nav{position:fixed;top:0;width:100%;z-index:100;padding:22px 0;transition:all .5s var(--ease);}
-.nav.scrolled{background:rgba(10,10,15,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--line);padding:14px 0;}
+.nav-logo-fallback{font-family:var(--font-display);font-size:1.4rem;letter-spacing:.12em;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:none;}
+.nav{position:fixed;top:0;width:100%;z-index:100;padding:16px 0;transition:all .5s var(--ease);}
+.nav.scrolled{background:rgba(10,10,15,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--line);padding:12px 0;}
 .nav .container{display:flex;align-items:center;justify-content:space-between;}
-.nav-logo-text{font-family:var(--font-display);font-size:1.4rem;letter-spacing:.12em;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .nav-links{display:flex;gap:36px;}
 .nav-links a{font-size:.75rem;letter-spacing:.18em;text-transform:uppercase;color:var(--txt-soft);transition:color .3s;position:relative;}
 .nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--gold-grad);transition:width .3s var(--ease);}
@@ -75,19 +84,20 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
 .hero::before{
   content:'';position:absolute;inset:0;
   background:url('https://images.unsplash.com/photo-1548171915-e79a380a2a4e?w=1800&q=80') center/cover no-repeat;
-  opacity:.08;z-index:0;
+  opacity:.1;z-index:0;
+  animation:heroZoom 16s ease-in-out infinite alternate;
 }
+@keyframes heroZoom{to{transform:scale(1.06);}}
 .hero::after{
   content:'';position:absolute;inset:0;
   background:radial-gradient(ellipse at 75% 40%, rgba(201,160,78,.12), transparent 55%),linear-gradient(to bottom, rgba(10,10,15,.5) 0%, transparent 30%, rgba(10,10,15,.4) 100%);
   z-index:0;
 }
-/* hero-left sits directly in the grid — no container wrapper */
 .hero-left{
   position:relative;z-index:2;
   display:flex;flex-direction:column;justify-content:center;
   padding:140px 48px 160px 48px;
-  min-width:0; /* prevent overflow in grid cell */
+  min-width:0;
 }
 .hero-eyebrow-wrap{display:flex;align-items:center;gap:14px;margin-bottom:26px;}
 .hero-eyebrow-line{display:block;height:1px;width:0;background:var(--gold-grad);transition:width 1.2s var(--ease);}
@@ -178,7 +188,8 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
 .heritage::before{content:'';position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1594534475808-b18fc33b045e?w=1600&q=80') center/cover;opacity:.05;}
 .heritage-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;}
 .hv-img{height:540px;border-radius:var(--radius);overflow:hidden;position:relative;}
-.hv-img img{width:100%;height:100%;object-fit:cover;}
+.hv-img img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease);}
+.hv-img:hover img{transform:scale(1.04);}
 .hv-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,15,.55),transparent 60%);}
 .hv-float{position:absolute;bottom:-28px;right:-18px;background:var(--surface);border:1px solid var(--gold);padding:24px 32px;border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);}
 .hv-float h4{font-size:2.5rem;font-family:var(--font-display);background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
@@ -190,6 +201,19 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
 .hl-num{font-family:var(--font-display);color:var(--gold);font-size:1rem;min-width:28px;}
 .heritage-list strong{display:block;margin-bottom:4px;}
 .heritage-list p{color:var(--txt-dim);font-size:.88rem;}
+
+/* ═══ TIMELINE ═══ */
+.timeline-sec{background:var(--bg-0);}
+.timeline{position:relative;padding-left:40px;margin-top:56px;}
+.timeline::before{content:'';position:absolute;left:11px;top:0;bottom:0;width:2px;background:linear-gradient(var(--gold),transparent);}
+.tl-item{display:flex;gap:32px;align-items:flex-start;margin-bottom:44px;position:relative;}
+.tl-item::before{content:'';position:absolute;left:-34px;top:6px;width:14px;height:14px;background:var(--gold-grad);border-radius:50%;box-shadow:0 0 0 5px rgba(201,160,78,.12);}
+.tl-year{font-family:var(--font-display);font-size:1.9rem;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;min-width:96px;line-height:1;}
+.tl-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:24px 28px;flex:1;display:flex;gap:22px;align-items:center;transition:.4s var(--ease);}
+.tl-card:hover{border-color:var(--gold);transform:translateX(8px);}
+.tl-img{width:96px;height:76px;border-radius:8px;object-fit:cover;flex-shrink:0;opacity:.9;}
+.tl-card h3{font-size:1.1rem;margin-bottom:4px;}
+.tl-card p{color:var(--txt-dim);font-size:.86rem;}
 
 /* ═══ PROCESS ═══ */
 .process-sec{background:var(--bg-0);}
@@ -208,7 +232,8 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
 .feature-banner::before{content:'';position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1626784215021-2e39ccf971cd?w=1600&q=80') center/cover;opacity:.07;}
 .feature-banner-inner{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
 .fb-img{border-radius:var(--radius);overflow:hidden;height:480px;}
-.fb-img img{width:100%;height:100%;object-fit:cover;}
+.fb-img img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease);}
+.fb-img:hover img{transform:scale(1.04);}
 .fb-content h2{font-size:clamp(1.8rem,3.5vw,2.8rem);margin:16px 0 20px;}
 .fb-content > p{color:var(--txt-soft);margin-bottom:28px;}
 .fb-features{display:flex;flex-direction:column;gap:14px;margin-bottom:34px;}
@@ -261,15 +286,29 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
 .material-card:hover p{max-height:80px;opacity:1;}
 .material-badge{display:inline-block;margin-bottom:10px;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(201,160,78,.3);padding:3px 10px;border-radius:50px;}
 
+/* ═══ GALLERY / LOOKBOOK ═══ */
+.gallery-sec{background:var(--bg-0);}
+.gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,220px);gap:18px;margin-top:0;}
+.gallery-item{border-radius:var(--radius-sm);overflow:hidden;position:relative;}
+.gallery-item.g-big{grid-column:span 2;grid-row:span 2;}
+.gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease),filter .5s;filter:grayscale(15%) brightness(.92);}
+.gallery-item:hover img{transform:scale(1.08);filter:grayscale(0%) brightness(1);}
+.gallery-item::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,15,.5),transparent 50%);pointer-events:none;}
+.gallery-cap{position:absolute;bottom:16px;left:18px;z-index:2;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-soft);}
+
 /* ═══ CTA ═══ */
-.cta-sec{text-align:center;background:radial-gradient(ellipse at 50% 50%,rgba(201,160,78,.12),transparent 65%),var(--bg-1);}
+.cta-sec{text-align:center;background:radial-gradient(ellipse at 50% 50%,rgba(201,160,78,.12),transparent 65%),var(--bg-1);position:relative;overflow:hidden;}
+.cta-sec::before{content:'';position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=1600&q=70') center/cover;opacity:.06;}
+.cta-inner{position:relative;z-index:1;}
 .cta-inner h2{font-size:clamp(2rem,5vw,3.4rem);}
 .cta-inner p{color:var(--txt-soft);margin:16px 0 34px;max-width:520px;margin-left:auto;margin-right:auto;}
 
 /* ═══ FOOTER ═══ */
 .footer{background:var(--bg-1);border-top:1px solid var(--line);padding:80px 0 0;}
 .footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.4fr;gap:48px;padding-bottom:60px;}
-.footer-logo{font-family:var(--font-display);font-size:1.7rem;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:block;margin-bottom:16px;}
+.footer-logo-wrap{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.footer-logo-img{height:34px;width:auto;filter:drop-shadow(0 0 8px rgba(224,185,106,.15));}
+.footer-logo-fallback{font-family:var(--font-display);font-size:1.5rem;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:none;}
 .footer-col > p{color:var(--txt-soft);font-size:.86rem;line-height:1.8;margin-bottom:26px;}
 .footer-col h4{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;}
 .footer-col ul li{margin-bottom:11px;}
@@ -286,7 +325,6 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
 .footer-news button{background:var(--gold-grad);border:none;color:#1a1407;padding:11px 20px;border-radius:0 50px 50px 0;font-size:.76rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:opacity .3s;white-space:nowrap;}
 .footer-news button:hover{opacity:.85;}
 
-/* ─── Newsletter responsive fix ─── */
 @media(max-width:400px){
   .footer-news{flex-direction:column;gap:8px;}
   .footer-news input{border-radius:50px;border-right:1px solid var(--line);border-bottom:none;}
@@ -350,6 +388,9 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
 [data-reveal][data-delay="3"]{transition-delay:.36s;}
 [data-reveal][data-delay="4"]{transition-delay:.48s;}
 
+.tl-item{opacity:0;transform:translateX(-24px);transition:opacity .7s var(--ease),transform .7s var(--ease);}
+.tl-item.visible{opacity:1;transform:translateX(0);}
+
 /* ═══ MOBILE NAV OVERLAY ═══ */
 .mobile-nav{
   display:none;position:fixed;inset:0;background:rgba(10,10,15,.97);
@@ -376,6 +417,8 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
   .stat-block:nth-child(3),.stat-block:nth-child(4){border-bottom:none;}
   .journal-grid{grid-template-columns:1fr 1fr;}
   .journal-card.featured{grid-column:1/-1;}
+  .gallery-grid{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,200px);}
+  .gallery-item.g-big{grid-column:span 2;grid-row:span 1;}
 }
 
 @media(max-width:768px){
@@ -383,6 +426,7 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
   .burger{display:flex;}
   .container{padding:0 20px;}
   .section{padding:72px 0;}
+  .nav-logo img{height:32px;}
   .hero{grid-template-columns:1fr;min-height:auto;}
   .hero-left{padding:120px 20px 48px 20px;}
   .hero-title{font-size:clamp(2.4rem,11vw,3.5rem);}
@@ -417,6 +461,10 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
   .journal-grid{grid-template-columns:1fr;}
   .journal-card.featured{grid-column:auto;}
   .brands-bar-track{gap:40px;}
+  .tl-card{flex-direction:column;align-items:flex-start;}
+  .tl-img{width:100%;height:140px;}
+  .gallery-grid{grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,160px);}
+  .gallery-item.g-big{grid-column:span 2;grid-row:span 1;}
 }
 
 @media(max-width:480px){
@@ -425,10 +473,36 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
   .btn{font-size:.72rem;padding:13px 22px;}
   .materials-grid{grid-template-columns:1fr;}
   .material-card{height:220px;}
+  .gallery-grid{grid-template-columns:1fr;grid-template-rows:repeat(5,180px);}
+  .gallery-item.g-big{grid-column:span 1;}
+  .tl-year{font-size:1.5rem;min-width:72px;}
+  .timeline{padding-left:32px;}
 }
 
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.01ms !important;transition-duration:.01ms !important;}
+}
+
+/* ═══ GAP FIXES: compound selectors beat the generic .section rule ═══ */
+.section.heritage      { padding-top: 70px; }
+.section.materials-sec { padding-top: 0; }
+.section.process-sec   { padding-top: 70px; }
+.section.gallery-sec   { padding-top: 70px; }
+.section.journal-sec   { padding-top: 70px; }
+.section.testi         { padding-top: 70px; }
+
+/* ═══ PRESS / RECOGNITION ═══ */
+.press-sec { background: var(--bg-1); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 56px 0; }
+.press-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 24px; align-items: center; text-align: center; }
+.press-item { font-family: var(--font-display); font-size: 1.05rem; letter-spacing: .12em; color: var(--txt-dim); transition: color .35s; cursor: default; }
+.press-item:hover { color: var(--gold); }
+.press-quote { font-size: .68rem; letter-spacing: .04em; color: var(--txt-dim); margin-top: 4px; font-family: var(--font-body); text-transform: none; opacity: .7; }
+
+@media(max-width:1100px){
+  .press-grid { grid-template-columns: repeat(3,1fr); gap: 28px 20px; }
+}
+@media(max-width:640px){
+  .press-grid { grid-template-columns: 1fr 1fr; }
 }
 </style>
 </head>
@@ -437,32 +511,41 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
 <div class="grain"></div>
 <div class="scroll-progress" id="sp"></div>
 
+<div class="preloader" id="preloader">
+  <div class="pre-logo">STACKLY</div>
+  <div class="pre-bar"><span></span></div>
+  <div class="pre-pct" id="prePct">0%</div>
+</div>
+
 <!-- MOBILE NAV -->
 <div class="mobile-nav" id="mobileNav">
   <span class="mobile-close" id="mobileClose">✕</span>
-  <a href="#">Home</a>
-  <a href="#">About</a>
-  <a href="#">Services</a>
-  <a href="#">Brands</a>
-  <a href="#">Blog</a>
-  <a href="#">Contact</a>
-  <a href="#" class="btn btn-gold" style="font-size:.8rem;">Book Consultation →</a>
+  <a href="index.html" class="nav-btn text-gold">Home</a>
+  <a href="about.html">About</a>
+  <a href="services.html">Services</a>
+  <a href="brands.html">Brands</a>
+  <a href="blog.html">Blog</a>
+  <a href="contact.html">Contact</a>
+  <a href="login.html">Login</a>
+  <!-- <a href="#" class="btn btn-gold" style="font-size:.8rem;">Book Consultation →</a> -->
 </div>
 
 <!-- NAVBAR -->
 <nav class="nav" id="navbar">
   <div class="container">
-    <a href="#" class="nav-logo">
-      <img src="./stackly-removebg-preview.png" alt="STACKLY">
+    <a href="index.html" class="nav-logo">
+      <img src="./stackly-removebg-preview.png" alt="STACKLY"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="nav-logo-fallback">STACKLY</span>
     </a>
     <ul class="nav-links">
-      <li><a href="#">Home</a></li>
-      <li><a href="#">About</a></li>
-      <li><a href="#">Services</a></li>
-      <li><a href="#">Brands</a></li>
-      <li><a href="#">Blog</a></li>
-      <li><a href="#">Contact</a></li>
-      <li><a href="#">Login</a></li>
+      <li><a href="index.html" class="nav-btn">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="brands.html">Brands</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="login.html">Login</a></li>
     </ul>
     <div class="nav-cta">
       <div class="burger" id="burger">
@@ -474,7 +557,6 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
 
 <!-- HERO -->
 <header class="hero">
-  <!-- LEFT: text content -->
   <div class="hero-left">
       <div class="hero-eyebrow-wrap">
         <span class="hero-eyebrow-line" id="eyebrowLine"></span>
@@ -487,7 +569,7 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
       <p class="hero-sub">Curated masterpieces of Swiss horology. Where precision engineering meets timeless craftsmanship — reserved for the few who appreciate the rare.</p>
       <div class="hero-actions">
         <a href="#" class="btn btn-gold">Explore Collection <span class="arrow">→</span></a>
-        <a href="#" class="btn btn-ghost">Our Heritage</a>
+        <a href="about.html" class="btn btn-ghost">Our Heritage</a>
       </div>
       <div class="hero-stats">
         <div class="hero-stat-item"><div class="num">126</div><div class="lbl">Years of Heritage</div></div>
@@ -534,7 +616,6 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
     <span class="brand-name">F.P. Journe</span><span class="brand-sep">✦</span>
     <span class="brand-name">Richard Mille</span><span class="brand-sep">✦</span>
     <span class="brand-name">Greubel Forsey</span><span class="brand-sep">✦</span>
-    <!-- duplicate for seamless loop -->
     <span class="brand-name">Patek Philippe</span><span class="brand-sep">✦</span>
     <span class="brand-name">Audemars Piguet</span><span class="brand-sep">✦</span>
     <span class="brand-name">Vacheron Constantin</span><span class="brand-sep">✦</span>
@@ -622,6 +703,34 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
   </div>
 </div>
 
+<!-- PRESS / RECOGNITION -->
+<section class="press-sec">
+  <div class="container">
+    <div class="press-grid">
+      <div class="press-item" data-reveal>
+        WATCH TIMES
+        <div class="press-quote">"Uncompromising"</div>
+      </div>
+      <div class="press-item" data-reveal data-delay="1">
+        HOROLOGY REVIEW
+        <div class="press-quote">"A house apart"</div>
+      </div>
+      <div class="press-item" data-reveal data-delay="2">
+        LE FIGARO
+        <div class="press-quote">"Geneva's quiet master"</div>
+      </div>
+      <div class="press-item" data-reveal data-delay="3">
+        COLLECTOR'S WEEKLY
+        <div class="press-quote">"Worth the wait"</div>
+      </div>
+      <div class="press-item" data-reveal data-delay="4">
+        THE RAKE
+        <div class="press-quote">"Restraint as luxury"</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- HERITAGE -->
 <section class="section heritage">
   <div class="container heritage-grid">
@@ -642,7 +751,55 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
         <li><span class="hl-num">02</span><div><strong>Certified Chronometers</strong><p>COSC-tested to ±2 seconds per day — a standard fewer than 3% of watchmakers achieve.</p></div></li>
         <li><span class="hl-num">03</span><div><strong>Lifetime Guardianship</strong><p>Servicing your timepiece across generations, with original parts held in perpetuity.</p></div></li>
       </ul>
-      <a href="#" class="btn btn-ghost">Discover Our Story <span class="arrow">→</span></a>
+      <a href="about.html" class="btn btn-ghost">Discover Our Story <span class="arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="section timeline-sec">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">Our Journey</span>
+      <h2>126 Years, Five Defining Moments</h2>
+      <p>From a single Geneva workshop to a global maison — without ever losing sight of the bench where it began.</p>
+    </div>
+    <div class="timeline">
+      <div class="tl-item">
+        <span class="tl-year">1898</span>
+        <div class="tl-card">
+          <img class="tl-img" src="https://images.unsplash.com/photo-1548169874-53e85f753f1e?w=200&q=70" alt="The Founding">
+          <div><h3>The Founding</h3><p>Émile Stackly opens his Geneva atelier on Rue du Rhône, determined to build Europe's most accurate pocket chronometer.</p></div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <span class="tl-year">1932</span>
+        <div class="tl-card">
+          <img class="tl-img" src="https://images.unsplash.com/photo-1622434641406-a158123450f9?w=200&q=70" alt="First Tourbillon">
+          <div><h3>First In-House Tourbillon</h3><p>Our inaugural tourbillon stuns the Basel Salon — watchmakers travel from across Europe to examine the mechanism.</p></div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <span class="tl-year">1969</span>
+        <div class="tl-card">
+          <img class="tl-img" src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=200&q=70" alt="Chronometer Record">
+          <div><h3>Chronometer Record</h3><p>The Calibre XVIII sets a COSC accuracy benchmark that stands unbeaten for over a decade.</p></div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <span class="tl-year">2004</span>
+        <div class="tl-card">
+          <img class="tl-img" src="https://images.unsplash.com/photo-1689287428096-7e1dcc705a5c?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fHByaXZhdGUlMjB3YXRjaHxlbnwwfHwwfHx8MA%3D%3D" alt="Bespoke Commissions">
+          <div><h3>Bespoke Commissions Launch</h3><p>No catalogue, no compromise — every commission built to a single patron's brief over 18 to 36 months.</p></div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <span class="tl-year">2026</span>
+        <div class="tl-card">
+          <img class="tl-img" src="https://images.unsplash.com/photo-1602810316498-ab67cf68c8e1?w=200&q=70" alt="The Modern Maison">
+          <div><h3>The Modern Maison</h3><p>32 boutiques, 18 countries, one uncompromising standard — and 900,000 collectors who refuse to settle.</p></div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -753,7 +910,40 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
           <div><strong>White-Glove Delivery</strong><span>Hand-delivered by a STACKLY representative, anywhere in the world, in our signature vault case.</span></div>
         </div>
       </div>
-      <a href="#" class="btn btn-gold">Book a Consultation <span class="arrow">→</span></a>
+      <a href="services.html" class="btn btn-gold">Book a Consultation <span class="arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY / LOOKBOOK -->
+<section class="section gallery-sec">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">The Lookbook</span>
+      <h2>Inside the Atelier</h2>
+      <p>A glimpse behind the bench — where every STACKLY piece begins its life.</p>
+    </div>
+    <div class="gallery-grid">
+      <div class="gallery-item g-big" data-reveal>
+        <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=900&q=80" alt="Watchmaker at the bench" loading="lazy">
+        <span class="gallery-cap">At the Bench</span>
+      </div>
+      <div class="gallery-item" data-reveal data-delay="1">
+        <img src="https://media.istockphoto.com/id/2176645598/photo/coworkers-talking-at-office.webp?a=1&b=1&s=612x612&w=0&k=20&c=xhaNHywbIQlcKYDPqxEH20msuQoOOIUAI9G7bplfkBg=" alt="Movement assembly" loading="lazy">
+        <span class="gallery-cap">Assembly</span>
+      </div>
+      <div class="gallery-item" data-reveal data-delay="2">
+        <img src="https://images.unsplash.com/photo-1508057198894-247b23fe5ade?w=500&q=80" alt="Hand finishing detail" loading="lazy">
+        <span class="gallery-cap">Hand Finishing</span>
+      </div>
+      <div class="gallery-item" data-reveal data-delay="3">
+        <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=500&q=80" alt="Final inspection" loading="lazy">
+        <span class="gallery-cap">Final Inspection</span>
+      </div>
+      <div class="gallery-item" data-reveal data-delay="4">
+        <img src="https://images.unsplash.com/photo-1551818255-e6e10975bc17?w=500&q=80" alt="Boutique display" loading="lazy">
+        <span class="gallery-cap">The Boutique</span>
+      </div>
     </div>
   </div>
 </section>
@@ -860,7 +1050,7 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
     <span class="eyebrow" style="display:block;text-align:center;">Begin Your Journey</span>
     <h2>Begin Your Private Consultation</h2>
     <p>Reserve a one-on-one session with a STACKLY horology advisor — in boutique or by private appointment, anywhere in the world.</p>
-    <a href="#" class="btn btn-gold">Request Appointment <span class="arrow">→</span></a>
+    <a href="services.html" class="btn btn-gold">Request Appointment <span class="arrow">→</span></a>
   </div>
 </section>
 
@@ -869,7 +1059,11 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
   <div class="container">
     <div class="footer-grid">
       <div class="footer-col">
-        <span class="footer-logo">STACKLY</span>
+        <div class="footer-logo-wrap">
+          <img src="./stackly-removebg-preview.png" alt="STACKLY" class="footer-logo-img"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <span class="footer-logo-fallback">STACKLY</span>
+        </div>
         <p>The world's most discerning maison of fine watchmaking. Crafted in Geneva since 1898.</p>
         <div class="footer-social">
           <a href="#" class="social-link" aria-label="X"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.261 5.634 5.903-5.634Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
@@ -881,11 +1075,12 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
       <div class="footer-col">
         <h4>Explore</h4>
         <ul>
-          <li><a href="#">About</a></li>
-          <li><a href="#">Brands</a></li>
-          <li><a href="#">Services</a></li>
-          <li><a href="#">Journal</a></li>
-          <li><a href="#">Exhibitions</a></li>
+            <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="brands.html">Brands</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="contact.html">Contact</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -895,7 +1090,7 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
           <li><a href="#">My Collection</a></li>
           <li><a href="#">Admin</a></li>
           <li><a href="#">Support</a></li>
-          <li><a href="#">Book Appointment</a></li>
+          <li><a href="services.html">Book Appointment</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -915,7 +1110,37 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;}
   </div>
 </footer>
 
+<!-- Newsletter Success Popup (MOVED above <script> so the elements exist
+     before the script runs and queries them — this was the bug that broke
+     the burger menu: the script threw on a null getElementById() here and
+     halted before reaching the mobile-nav listener below) -->
+<div class="nl-popup-overlay" id="nlOverlay">
+  <div class="nl-popup">
+    <button class="nl-popup-x" id="nlClose" aria-label="Close">✕</button>
+    <div class="nl-popup-icon">
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#c9a04e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+    </div>
+    <h3>You're on the list.</h3>
+    <p>Welcome to the inner circle. We'll be in touch with private releases and horological insight — always worth the wait.</p>
+    <div class="nl-email-shown" id="nlEmailShown"></div>
+    <button class="nl-popup-close" id="nlOk">Back to Reading</button>
+  </div>
+</div>
+
 <script>
+// ─── Preloader ───
+(function(){
+  let pct=0;
+  const el=document.getElementById('prePct');
+  const t=setInterval(()=>{ pct=Math.min(pct+Math.random()*18,95); el.textContent=Math.floor(pct)+'%'; },80);
+  window.addEventListener('load',()=>{
+    clearInterval(t); el.textContent='100%';
+    setTimeout(()=>document.getElementById('preloader').classList.add('hidden'),400);
+  });
+})();
+
 // ─── Scroll progress ───
 const sp = document.getElementById('sp');
 window.addEventListener('scroll',()=>{
@@ -934,6 +1159,15 @@ const ro = new IntersectionObserver(entries=>{
   entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); ro.unobserve(e.target); } });
 },{threshold:0.08});
 document.querySelectorAll('[data-reveal]').forEach(el=>ro.observe(el));
+
+// ─── Timeline reveal ───
+const tlObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); tlObs.unobserve(e.target); } });
+},{threshold:0.3});
+document.querySelectorAll('.tl-item').forEach((el,i)=>{
+  el.style.transitionDelay=(i*0.1)+'s';
+  tlObs.observe(el);
+});
 
 // ─── Watch hands sync ───
 const now = new Date();
@@ -974,6 +1208,22 @@ document.querySelectorAll('.material-card').forEach(card=>{
   card.addEventListener('mouseleave',()=>{ card.style.transform=''; });
 });
 
+// ─── Gallery item tilt ───
+document.querySelectorAll('.gallery-item').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+    card.style.transform=`perspective(700px) rotateX(${-y*3}deg) rotateY(${x*3}deg) scale(1.02)`;
+  });
+  card.addEventListener('mouseleave',()=>{ card.style.transform=''; });
+});
+
+// ─── Press item subtle lift ───
+document.querySelectorAll('.press-item').forEach(item=>{
+  item.addEventListener('mouseenter',()=>{ item.style.transform='translateY(-3px)'; item.style.transition='.3s ease'; });
+  item.addEventListener('mouseleave',()=>{ item.style.transform=''; });
+});
+
 // ─── Stat counter animation ───
 const countUp = (el, target, suffix='') => {
   const isFloat = target%1!==0;
@@ -996,7 +1246,6 @@ const statObs = new IntersectionObserver(entries=>{
     if(!big || big.dataset.counted) return;
     big.dataset.counted='1';
     const txt = big.textContent.trim();
-    // Parse value
     if(txt==='500') countUp(big,500);
     else if(txt==='98h') { big.textContent='0h'; countUp({set textContent(v){big.textContent=v+'h';}},98); }
     else if(txt==='±2s') { big.textContent='±0s'; setTimeout(()=>{ big.textContent='±2s'; },900); }
@@ -1023,7 +1272,6 @@ function openPopup(email){
 function closePopup(){
   nlOverlay.classList.remove('show');
   document.body.style.overflow='';
-  // reset form
   nlInput.value='';
   nlHint.style.display='none';
 }
@@ -1056,22 +1304,6 @@ burger.addEventListener('click',()=>{ mobileNav.classList.add('open'); document.
 mobileClose.addEventListener('click',()=>{ mobileNav.classList.remove('open'); document.body.style.overflow=''; });
 mobileNav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ mobileNav.classList.remove('open'); document.body.style.overflow=''; }));
 </script>
-
-<!-- Newsletter Success Popup -->
-<div class="nl-popup-overlay" id="nlOverlay">
-  <div class="nl-popup">
-    <button class="nl-popup-x" id="nlClose" aria-label="Close">✕</button>
-    <div class="nl-popup-icon">
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#c9a04e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-      </svg>
-    </div>
-    <h3>You're on the list.</h3>
-    <p>Welcome to the inner circle. We'll be in touch with private releases and horological insight — always worth the wait.</p>
-    <div class="nl-email-shown" id="nlEmailShown"></div>
-    <button class="nl-popup-close" id="nlOk">Back to Reading</button>
-  </div>
-</div>
 
 </body>
 </html>
